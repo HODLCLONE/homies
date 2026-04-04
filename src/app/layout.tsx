@@ -14,16 +14,17 @@ const geistMono = Geist_Mono({
 
 const appUrl = "https://stmbl.hodlhq.app";
 const imageUrl = `${appUrl}/opengraph-image`;
+const miniappImageUrl = `${appUrl}/miniapp-image`;
 const miniAppEmbed = {
   version: "next",
-  imageUrl,
+  imageUrl: miniappImageUrl,
   button: {
     title: "Open STMBL",
     action: {
       type: "launch_frame",
       name: "STMBL",
       url: appUrl,
-      splashImageUrl: imageUrl,
+      splashImageUrl: miniappImageUrl,
       splashBackgroundColor: "#061018",
     },
   },
@@ -31,11 +32,11 @@ const miniAppEmbed = {
 
 export const metadata: Metadata = {
   title: "STMBL · Farcaster discovery",
-  description: "A fast Farcaster mini app for finding people, casts, and corners of the graph worth opening.",
+  description: "A fast Farcaster mini app for finding real people, casts, and corners of the graph worth opening.",
   metadataBase: new URL(appUrl),
   openGraph: {
     title: "STMBL · Farcaster discovery",
-    description: "Find people, open better threads, and save the good picks.",
+    description: "Find real Farcaster people and casts worth opening.",
     url: appUrl,
     siteName: "STMBL",
     images: [imageUrl],
