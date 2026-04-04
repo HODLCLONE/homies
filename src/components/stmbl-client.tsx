@@ -125,18 +125,6 @@ export function StmblClient() {
         )}
       </section>
 
-      <section className="card-grid" aria-label="Stmbl details">
-        <article className="glass-panel sub-panel">
-          <p className="eyebrow">Use it for</p>
-          <h3>Getting unstuck fast</h3>
-          <p>When your feed feels repetitive, hit stumble and let it throw you toward a better room, post, or person.</p>
-        </article>
-        <article className="glass-panel sub-panel">
-          <p className="eyebrow">What you get</p>
-          <h3>Simple discovery, no fluff</h3>
-          <p>Quick picks, clean open actions, and a saved list for the stuff you actually want to come back to.</p>
-        </article>
-      </section>
     </div>
   );
 }
