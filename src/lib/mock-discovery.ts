@@ -1,107 +1,52 @@
-export type DiscoveryMode = "random" | "niche" | "people";
-export type DiscoveryItemType = "cast" | "user";
-
-export type DiscoveryItem =
-  | {
-      id: string;
-      type: "cast";
-      author: string;
-      handle: string;
-      channel: string;
-      text: string;
-      reason: string;
-      href: string;
-      engagement: string;
-      neynarScore: number;
-    }
-  | {
-      id: string;
-      type: "user";
-      author: string;
-      handle: string;
-      bio: string;
-      reason: string;
-      href: string;
-      engagement: string;
-      neynarScore: number;
-    };
+export type DiscoveryItem = {
+  id: string;
+  author: string;
+  handle: string;
+  channel: string;
+  text: string;
+  href: string;
+  engagement: string;
+};
 
 const CASTS: DiscoveryItem[] = [
   {
-    id: "cast-1",
-    type: "cast",
-    author: "unc",
-    handle: "@unclehodl",
-    channel: "/beezie",
-    text: "The best discovery surfaces are not search or trend pages. They feel like controlled chaos with taste.",
-    reason: "High-signal cast from a strong operator account",
-    href: "https://warpcast.com/~/channel/beezie",
-    engagement: "42 likes · 11 recasts · 6 replies",
-    neynarScore: 0.91,
-  },
-  {
-    id: "cast-2",
-    type: "cast",
-    author: "mori",
-    handle: "@mori",
-    channel: "/builders",
-    text: "The next mini apps that matter will feel less like tools and more like loops you can’t stop tapping.",
-    reason: "Rising builder with clean engagement quality",
-    href: "https://warpcast.com/~/channel/builders",
-    engagement: "29 likes · 7 recasts · 8 replies",
-    neynarScore: 0.84,
-  },
-  {
-    id: "cast-3",
-    type: "cast",
-    author: "rio",
-    handle: "@rio",
+    id: "cast-lorenzo-007-0x7260fbf6",
+    author: "lorenzo-007",
+    handle: "@lorenzo-007",
     channel: "/farcaster",
-    text: "Underrated is better than trending if the filter understands trust, recency, and weirdness.",
-    reason: "Niche find with strong reply-to-like ratio",
-    href: "https://warpcast.com/~/channel/farcaster",
-    engagement: "18 likes · 3 recasts · 9 replies",
-    neynarScore: 0.8,
+    text: "I wish Farcaster can just give me my remaining 6months of pro user money back It's kinda mid being a pro user when the wallets don't even work well, user rewards no more.",
+    href: "https://farcaster.xyz/lorenzo-007/0x7260fbf6",
+    engagement: "1 like · 0 recasts · 4 replies",
+  },
+  {
+    id: "cast-sa-0x5ad8364f",
+    author: "sa",
+    handle: "@sa",
+    channel: "/farcaster",
+    text: "Going through my Channel follows to clean it up today was rough. Do not recommend if your FID is under like 500K.",
+    href: "https://farcaster.xyz/sa/0x5ad8364f",
+    engagement: "0 likes · 0 recasts · 6 replies",
+  },
+  {
+    id: "cast-statuette-0xfb2c7ec2",
+    author: "statuette",
+    handle: "@statuette",
+    channel: "/farcaster",
+    text: "My Neynar score is 0.97 I’ve been watching my score lately because I noticed that it keeps fluctuating between 0.97 and 0.98. I may be wrong, didn’t read the docs but it seems like posting miniapp template shares might be lowering my score.",
+    href: "https://farcaster.xyz/statuette/0xfb2c7ec2",
+    engagement: "3 likes · 1 recast · 16 replies",
+  },
+  {
+    id: "cast-bfg-0x79de9d7e",
+    author: "bfg",
+    handle: "@bfg",
+    channel: "/farcaster",
+    text: "We're live - Farcaster Agentic Bootcamp Day #5 Wow 🤩 who'd say it's already a full week of daily learning about building agents on top of Farcaster stack (but most topics are applicable anywhere)",
+    href: "https://farcaster.xyz/bfg/0x79de9d7e",
+    engagement: "0 likes · 1 recast · 9 replies",
   },
 ];
 
-const USERS: DiscoveryItem[] = [
-  {
-    id: "user-1",
-    type: "user",
-    author: "aya",
-    handle: "@aya",
-    bio: "Quietly shipping high-context design systems and strange premium mini apps.",
-    reason: "Consistent high-score builder with healthy engagement",
-    href: "https://warpcast.com/aya",
-    engagement: "4.2k followers · active this week",
-    neynarScore: 0.88,
-  },
-  {
-    id: "user-2",
-    type: "user",
-    author: "luma",
-    handle: "@luma",
-    bio: "Collects niche channels, weird software, and social surfaces that still have soul.",
-    reason: "Strong long-tail account surfaced from niche mode",
-    href: "https://warpcast.com/luma",
-    engagement: "1.1k followers · strong save rate",
-    neynarScore: 0.82,
-  },
-  {
-    id: "user-3",
-    type: "user",
-    author: "tess",
-    handle: "@tess",
-    bio: "Posts less, lands more. Infra, signal curation, and low-noise product notes.",
-    reason: "People mode candidate with high trust / low spam profile",
-    href: "https://warpcast.com/tess",
-    engagement: "2.8k followers · excellent cast quality",
-    neynarScore: 0.87,
-  },
-];
-
-export function getMockDiscovery(mode: DiscoveryMode = "random"): DiscoveryItem {
-  const pool = mode === "people" ? USERS : mode === "niche" ? [...CASTS.slice(1), ...USERS.slice(1)] : [...CASTS, ...USERS];
-  return pool[Math.floor(Math.random() * pool.length)] ?? CASTS[0];
+export function getDiscovery(): DiscoveryItem {
+  return CASTS[Math.floor(Math.random() * CASTS.length)] ?? CASTS[0];
 }

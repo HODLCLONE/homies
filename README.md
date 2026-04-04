@@ -9,9 +9,9 @@ Brand:
 
 Current app includes:
 - one-card mobile-first stumble UI
-- modes for broad discovery, deep cuts, and people
-- mock discovery API
-- saved/settings placeholder pages
+- real Farcaster cast seed set
+- clickable stumbled results
+- settings page
 - mini app metadata + opengraph image
 
 Run locally:

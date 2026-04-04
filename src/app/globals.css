@@ -163,20 +163,13 @@ a {
   line-height: 1.6;
 }
 
-.hero-chip-stack,
-.mode-row,
 .action-row,
-.card-meta-row,
 .detail-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
-.hero-chip,
-.item-type,
-.score-chip,
-.mode-pill,
 .action-button,
 .text-link {
   border: 1px solid rgba(193, 240, 255, 0.16);
@@ -186,14 +179,6 @@ a {
   backdrop-filter: blur(12px);
 }
 
-.hero-chip,
-.item-type,
-.score-chip {
-  padding: 0.5rem 0.8rem;
-  font-size: 0.78rem;
-}
-
-.mode-pill,
 .action-button,
 .text-link {
   padding: 0.72rem 1rem;
@@ -201,8 +186,6 @@ a {
   cursor: pointer;
 }
 
-.mode-pill.is-active,
-.action-button.is-link,
 .text-link {
   color: var(--bg-deep);
   background: linear-gradient(180deg, var(--accent-strong), var(--accent));
@@ -232,6 +215,11 @@ a {
   gap: 1rem;
 }
 
+.result-link {
+  display: grid;
+  gap: 0.9rem;
+}
+
 .handle-line {
   color: var(--accent);
   font-family: var(--font-geist-mono), monospace;
@@ -256,6 +244,7 @@ a {
   justify-items: center;
   gap: 1rem;
   padding: 1rem 0.25rem;
+  min-height: 220px;
 }
 
 .loading-orb {
@@ -290,7 +279,7 @@ a {
 
   .nav-links {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 
   .hero-panel,
