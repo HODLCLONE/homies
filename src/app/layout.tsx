@@ -12,15 +12,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const appUrl = "https://stmbl.hodlhq.app";
+const imageUrl = `${appUrl}/opengraph-image`;
+const miniAppEmbed = {
+  version: "next",
+  imageUrl,
+  button: {
+    title: "Open STMBL",
+    action: {
+      type: "launch_frame",
+      name: "STMBL",
+      url: appUrl,
+      splashImageUrl: imageUrl,
+      splashBackgroundColor: "#061018",
+    },
+  },
+};
+
 export const metadata: Metadata = {
-  title: "STMBL",
-  description: "Random-but-filtered Farcaster discovery.",
-  metadataBase: new URL("https://stmbl.hodlhq.app"),
+  title: "STMBL · Farcaster discovery",
+  description: "A fast Farcaster mini app for finding people, casts, and corners of the graph worth opening.",
+  metadataBase: new URL(appUrl),
   openGraph: {
-    title: "STMBL",
-    description: "Random-but-filtered Farcaster discovery.",
-    url: "https://stmbl.hodlhq.app",
+    title: "STMBL · Farcaster discovery",
+    description: "Find people, open better threads, and save the good picks.",
+    url: appUrl,
     siteName: "STMBL",
+    images: [imageUrl],
+  },
+  other: {
+    "fc:frame": JSON.stringify(miniAppEmbed),
+    "fc:miniapp": JSON.stringify(miniAppEmbed),
   },
 };
 

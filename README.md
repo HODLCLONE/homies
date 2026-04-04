@@ -1,18 +1,18 @@
 # STMBL
 
-STMBL is a simple Farcaster mini app scaffold for random-but-filtered discovery.
+STMBL is a Farcaster mini app for quick discovery.
 
 Brand:
 - Name: STMBL
 - URL target: https://stmbl.hodlhq.app
-- Style: liquid glass + dark theme
+- Style: dark liquid-glass
 
-Current scaffold includes:
+Current app includes:
 - one-card mobile-first stumble UI
-- random / niche / people modes
+- modes for broad discovery, deep cuts, and people
 - mock discovery API
 - saved/settings placeholder pages
-- dark liquid-glass design system
+- mini app metadata + opengraph image
 
 Run locally:
 

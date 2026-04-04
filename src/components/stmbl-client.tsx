@@ -3,13 +3,25 @@
 import { useCallback, useEffect, useState } from "react";
 import type { DiscoveryItem, DiscoveryMode } from "@/lib/mock-discovery";
 
-const MODES: DiscoveryMode[] = ["random", "niche", "people"];
+const MODES: Array<{ value: DiscoveryMode; label: string }> = [
+  { value: "random", label: "For you" },
+  { value: "niche", label: "Deep cuts" },
+  { value: "people", label: "People" },
+];
 
 async function loadItem(mode: DiscoveryMode): Promise<DiscoveryItem> {
   const response = await fetch(`/api/discover?mode=${mode}`, { cache: "no-store" });
   if (!response.ok) throw new Error("Failed to load discovery item");
   const data = (await response.json()) as { item: DiscoveryItem };
   return data.item;
+}
+
+function itemTypeLabel(item: DiscoveryItem) {
+  return item.type === "cast" ? "Cast" : "Person";
+}
+
+function contextLabel(item: DiscoveryItem) {
+  return item.type === "cast" ? item.channel : "Profile";
 }
 
 export function StmblClient() {
@@ -41,14 +53,16 @@ export function StmblClient() {
     <div className="stmbl-shell">
       <header className="glass-panel hero-panel">
         <div>
-          <p className="eyebrow">Farcaster Mini App Prototype</p>
-          <h1>STMBL</h1>
-          <p className="hero-copy">Stumble through high-signal Farcaster casts and people without drowning in sludge.</p>
+          <p className="eyebrow">Farcaster discovery</p>
+          <h1>Find your next corner of Farcaster.</h1>
+          <p className="hero-copy">
+            STMBL is a fast way to surface people, casts, and niche pockets worth opening when the main feed feels noisy.
+          </p>
         </div>
         <div className="hero-chip-stack">
-          <span className="hero-chip">Dark</span>
-          <span className="hero-chip">Liquid Glass</span>
-          <span className="hero-chip">Neynar-ready</span>
+          <span className="hero-chip">find people</span>
+          <span className="hero-chip">open better threads</span>
+          <span className="hero-chip">save good picks</span>
         </div>
       </header>
 
@@ -56,12 +70,12 @@ export function StmblClient() {
         <div className="mode-row">
           {MODES.map((entry) => (
             <button
-              key={entry}
+              key={entry.value}
               type="button"
-              className={`mode-pill ${mode === entry ? "is-active" : ""}`}
-              onClick={() => setMode(entry)}
+              className={`mode-pill ${mode === entry.value ? "is-active" : ""}`}
+              onClick={() => setMode(entry.value)}
             >
-              {entry}
+              {entry.label}
             </button>
           ))}
         </div>
@@ -74,13 +88,13 @@ export function StmblClient() {
         {loading || !item ? (
           <div className="loading-state">
             <div className="loading-orb" />
-            <p>Scanning filtered Farcaster pools…</p>
+            <p>Finding something worth your tap…</p>
           </div>
         ) : (
           <>
             <div className="card-meta-row">
-              <span className="item-type">{item.type}</span>
-              <span className="score-chip">score {Math.round(item.neynarScore * 100)}</span>
+              <span className="item-type">{itemTypeLabel(item)}</span>
+              <span className="score-chip">{mode === "people" ? "people pick" : mode === "niche" ? "deep cut" : "fresh pick"}</span>
             </div>
             <h2>{item.author}</h2>
             <p className="handle-line">{item.handle}</p>
@@ -88,11 +102,11 @@ export function StmblClient() {
             {item.type === "cast" ? <p className="body-copy">“{item.text}”</p> : <p className="body-copy">{item.bio}</p>}
             <div className="detail-grid">
               <div>
-                <span className="detail-label">Context</span>
-                <p>{item.type === "cast" ? item.channel : "Quality user"}</p>
+                <span className="detail-label">Where</span>
+                <p>{contextLabel(item)}</p>
               </div>
               <div>
-                <span className="detail-label">Signal</span>
+                <span className="detail-label">Why now</span>
                 <p>{item.engagement}</p>
               </div>
             </div>
@@ -111,16 +125,16 @@ export function StmblClient() {
         )}
       </section>
 
-      <section className="card-grid" aria-label="Scaffold status">
+      <section className="card-grid" aria-label="Stmbl details">
         <article className="glass-panel sub-panel">
-          <p className="eyebrow">Modes</p>
-          <h3>Random / Niche / People</h3>
-          <p>Enough to prove the loop before real Neynar ingestion and scoring land.</p>
+          <p className="eyebrow">Use it for</p>
+          <h3>Getting unstuck fast</h3>
+          <p>When your feed feels repetitive, hit stumble and let it throw you toward a better room, post, or person.</p>
         </article>
         <article className="glass-panel sub-panel">
-          <p className="eyebrow">Next up</p>
-          <h3>Real filtered pools</h3>
-          <p>Swap mock items for cached discovery pools scored with Neynar trust and engagement quality.</p>
+          <p className="eyebrow">What you get</p>
+          <h3>Simple discovery, no fluff</h3>
+          <p>Quick picks, clean open actions, and a saved list for the stuff you actually want to come back to.</p>
         </article>
       </section>
     </div>
