@@ -1,16 +1,50 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
+import {
+  DISCOVERY_SETTINGS_STORAGE_KEY,
+  defaultDiscoverySettings,
+  type DiscoverySettings,
+} from "@/lib/discovery-config";
 import type { DiscoveryItem, DiscoveryResponse } from "@/lib/discovery";
 
 const MAX_SEEN_IDS = 40;
 
-async function loadItem(seenIds: string[] = []): Promise<DiscoveryResponse> {
-  const params = new URLSearchParams();
-  if (seenIds.length > 0) {
-    params.set("seen", seenIds.join(","));
+function getIgnoreKey(item: DiscoveryItem): string {
+  if (item.type === "cast") return `cast:${item.hash}`;
+  if (item.type === "user") return `user:${item.username}`;
+  return `channel:${item.slug}`;
+}
+
+function readSettings(): DiscoverySettings {
+  if (typeof window === "undefined") return defaultDiscoverySettings();
+
+  try {
+    const raw = window.localStorage.getItem(DISCOVERY_SETTINGS_STORAGE_KEY);
+    if (!raw) return defaultDiscoverySettings();
+    const parsed = JSON.parse(raw) as Partial<DiscoverySettings>;
+    return {
+      blacklistedUsernames: parsed.blacklistedUsernames ?? defaultDiscoverySettings().blacklistedUsernames,
+      blacklistedChannels: parsed.blacklistedChannels ?? defaultDiscoverySettings().blacklistedChannels,
+      ignoredKeys: parsed.ignoredKeys ?? [],
+    };
+  } catch {
+    return defaultDiscoverySettings();
   }
+}
+
+function writeSettings(settings: DiscoverySettings) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(DISCOVERY_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+}
+
+async function loadItem(seenIds: string[] = [], settings: DiscoverySettings): Promise<DiscoveryResponse> {
+  const params = new URLSearchParams();
+  if (seenIds.length > 0) params.set("seen", seenIds.join(","));
+  if (settings.blacklistedUsernames.length > 0) params.set("blacklistedUsers", settings.blacklistedUsernames.join(","));
+  if (settings.blacklistedChannels.length > 0) params.set("blacklistedChannels", settings.blacklistedChannels.join(","));
+  if (settings.ignoredKeys.length > 0) params.set("ignored", settings.ignoredKeys.join(","));
 
   const query = params.toString();
   const response = await fetch(`/api/discover${query ? `?${query}` : ""}`, { cache: "no-store" });
@@ -43,17 +77,28 @@ export function StmblClient() {
   const [item, setItem] = useState<DiscoveryItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [seenIds, setSeenIds] = useState<string[]>([]);
+  const [settings, setSettings] = useState<DiscoverySettings>(defaultDiscoverySettings());
+
+  useEffect(() => {
+    setSettings(readSettings());
+  }, []);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const payload = await loadItem(seenIds);
+      const payload = await loadItem(seenIds, settings);
       setItem(payload.item);
       setSeenIds((current) => (current.includes(payload.item.id) ? current : [...current, payload.item.id].slice(-MAX_SEEN_IDS)));
     } finally {
       setLoading(false);
     }
-  }, [seenIds]);
+  }, [seenIds, settings]);
+
+  const bodyCopy = useMemo(() => {
+    if (!item) return "";
+    if (item.type === "cast") return `“${item.text}”`;
+    return item.bio;
+  }, [item]);
 
   useEffect(() => {
     void sdk.actions.ready().catch(() => {
@@ -66,6 +111,18 @@ export function StmblClient() {
       void refresh();
     }
   }, [item, refresh]);
+
+  const ignoreCurrent = async () => {
+    if (!item) return;
+    const nextSettings = {
+      ...settings,
+      ignoredKeys: [...new Set([...settings.ignoredKeys, getIgnoreKey(item)])],
+    };
+    setSettings(nextSettings);
+    writeSettings(nextSettings);
+    setSeenIds((current) => [...new Set([...current, item.id])].slice(-MAX_SEEN_IDS));
+    setItem(null);
+  };
 
   return (
     <div className="stmbl-shell">
@@ -90,7 +147,7 @@ export function StmblClient() {
             <div className="result-link">
               <h2>{item.author}</h2>
               <p className="handle-line">{item.handle}</p>
-              <p className="body-copy">{item.type === "cast" ? `“${item.text}”` : item.bio}</p>
+              <p className="body-copy">{bodyCopy}</p>
               <div className="detail-grid">
                 <div>
                   <span className="detail-label">Where</span>
@@ -103,6 +160,9 @@ export function StmblClient() {
               </div>
             </div>
             <div className="action-row">
+              <button type="button" className="action-button" onClick={() => void ignoreCurrent()}>
+                Ignore
+              </button>
               <button type="button" className="action-button text-link" onClick={() => void openItem(item)}>
                 Open
               </button>

@@ -312,6 +312,34 @@ a {
   gap: 0.9rem;
 }
 
+.settings-panel {
+  width: min(100%, 720px);
+}
+
+.settings-field {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.settings-field span {
+  color: var(--accent);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.settings-field textarea {
+  width: 100%;
+  border: 1px solid rgba(193, 240, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--accent-strong);
+  padding: 0.95rem 1rem;
+  font: inherit;
+  resize: vertical;
+  min-height: 120px;
+}
+
 @media (max-width: 640px) {
   .top-nav {
     align-items: flex-start;

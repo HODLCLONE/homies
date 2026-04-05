@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildPoolsFromCasts,
+  filterPool,
   formatEngagement,
   pickDiscoveryItem,
   toDiscoveryCast,
@@ -73,7 +74,6 @@ test("toDiscoveryCast normalizes a Neynar cast payload into a STMBL card", () =>
   assert.equal(item.id, "cast:0xabc");
   assert.equal(item.handle, "@unclehodl");
   assert.equal(item.channel, "/builders");
-  assert.equal(item.href, "https://warpcast.com/unclehodl/0xabc");
   assert.equal(item.hash, "0xabc");
   assert.equal(item.authorUsername, "unclehodl");
 });
@@ -94,12 +94,11 @@ test("toDiscoveryUser includes fid for in-app profile opening", () => {
 
   assert.equal(item.type, "user");
   assert.equal(item.id, "user:99");
-  assert.equal(item.href, "https://warpcast.com/aya");
   assert.equal(item.fid, 99);
-  assert.match(item.engagement, /4.2k followers/i);
+  assert.equal(item.username, "aya");
 });
 
-test("toDiscoveryChannel builds a channel card from aggregated live casts", () => {
+test("toDiscoveryChannel builds channel info without surfacing a post body", () => {
   const item = toDiscoveryChannel({
     id: "builds",
     castCount: 3,
@@ -107,17 +106,16 @@ test("toDiscoveryChannel builds a channel card from aggregated live casts", () =
     likes: 27,
     recasts: 5,
     replies: 11,
-    sampleText: "Three good builders are posting here.",
   });
 
   assert.equal(item.type, "channel");
   assert.equal(item.id, "channel:builds");
-  assert.equal(item.href, "https://warpcast.com/~/channel/builds");
   assert.equal(item.slug, "builds");
-  assert.match(item.reason, /active/i);
+  assert.match(item.bio, /sampled casts/i);
+  assert.doesNotMatch(item.bio, /Three good builders are posting here/i);
 });
 
-test("buildPoolsFromCasts returns random-only mixed pools and blacklists Farcaster accounts", () => {
+test("buildPoolsFromCasts returns mixed random pool and blacklists blocked accounts/channels", () => {
   const casts: DiscoveryCast[] = [
     {
       hash: "0x1",
@@ -159,4 +157,56 @@ test("buildPoolsFromCasts returns random-only mixed pools and blacklists Farcast
   assert.ok(pools.random.some((item) => item.type === "user"));
   assert.ok(pools.random.some((item) => item.type === "channel"));
   assert.ok(!pools.random.some((item) => item.handle === "@farcaster" || item.handle === "/farcaster"));
+});
+
+test("filterPool respects configurable blacklists and ignored entries", () => {
+  const items: DiscoveryItem[] = [
+    {
+      id: "user:99",
+      type: "user",
+      author: "Aya",
+      handle: "@aya",
+      bio: "bio",
+      reason: "reason",
+      href: "https://warpcast.com/aya",
+      engagement: "4.2k followers · active on Farcaster",
+      neynarScore: 0.88,
+      fid: 99,
+      username: "aya",
+    },
+    {
+      id: "channel:builders",
+      type: "channel",
+      author: "Builders",
+      handle: "/builders",
+      bio: "12 sampled casts from 8 active authors during the latest refresh.",
+      reason: "reason",
+      href: "https://warpcast.com/~/channel/builders",
+      engagement: "12 casts sampled · 8 active authors",
+      neynarScore: 0.86,
+      slug: "builders",
+    },
+    {
+      id: "cast:0x1",
+      type: "cast",
+      author: "unc",
+      handle: "@unclehodl",
+      channel: "/beezie",
+      text: "controlled chaos with taste",
+      reason: "reason",
+      href: "https://warpcast.com/unclehodl/0x1",
+      engagement: "42 likes · 11 recasts · 6 replies",
+      neynarScore: 0.91,
+      hash: "0x1",
+      authorUsername: "unclehodl",
+    },
+  ];
+
+  const filtered = filterPool(items, {
+    blacklistedUsernames: ["aya"],
+    blacklistedChannels: ["builders"],
+    ignoredKeys: ["cast:0x1"],
+  });
+
+  assert.equal(filtered.length, 0);
 });

@@ -1,4 +1,10 @@
 import { revalidateTag, unstable_cache } from "next/cache";
+import {
+  DEFAULT_BLACKLISTED_CHANNELS,
+  DEFAULT_BLACKLISTED_USERNAMES,
+  normalizeHandle,
+  type DiscoverySettings,
+} from "@/lib/discovery-config";
 
 export type DiscoveryMode = "random";
 export type DiscoveryItemType = "cast" | "user" | "channel";
@@ -83,7 +89,6 @@ export type DiscoveryCast = {
   author?: DiscoveryUser | null;
   channel?: {
     id?: string | null;
-    name?: string | null;
   } | null;
   reactions?: {
     likes_count?: number | null;
@@ -102,7 +107,6 @@ type DiscoveryChannelAggregate = {
   likes: number;
   recasts: number;
   replies: number;
-  sampleText: string;
 };
 
 type EngagementCounts = {
@@ -118,23 +122,12 @@ const PAGE_COUNT = 3;
 const CACHE_TTL_SECONDS = 60 * 15;
 const MAX_CASTS_PER_AUTHOR = 2;
 const MAX_CASTS_PER_CHANNEL = 4;
-
-const BLACKLISTED_USERNAMES = new Set([
-  "farcaster",
-  "dwr",
-  "dwr.eth",
-  "v",
-  "varun",
-  "dan",
-  "danromero",
-  "rish",
-  "rish0x",
-  "anton",
-  "merkle",
-]);
-
 const BLACKLISTED_DISPLAY_NAMES = ["farcaster", "dan romero", "varun", "dwr"];
-const BLACKLISTED_CHANNELS = new Set(["farcaster", "fc"]);
+const DEFAULT_SETTINGS: DiscoverySettings = {
+  blacklistedUsernames: DEFAULT_BLACKLISTED_USERNAMES,
+  blacklistedChannels: DEFAULT_BLACKLISTED_CHANNELS,
+  ignoredKeys: [],
+};
 
 const FALLBACK_RANDOM: DiscoveryItem[] = [
   {
@@ -152,23 +145,9 @@ const FALLBACK_RANDOM: DiscoveryItem[] = [
     authorUsername: "unclehodl",
   },
   {
-    id: "cast:fallback-2",
-    type: "cast",
-    author: "mori",
-    handle: "@mori",
-    channel: "/builders",
-    text: "The next mini apps that matter will feel less like tools and more like loops you can’t stop tapping.",
-    reason: "Strong builder cast with clean engagement quality",
-    href: "https://warpcast.com/mori/0x2",
-    engagement: "29 likes · 7 recasts · 8 replies",
-    neynarScore: 0.84,
-    hash: "0x2",
-    authorUsername: "mori",
-  },
-  {
-    id: "user:aya",
+    id: "user:99",
     type: "user",
-    author: "aya",
+    author: "Aya",
     handle: "@aya",
     bio: "Quietly shipping high-context design systems and strange premium mini apps.",
     reason: "Consistent builder with strong trust score",
@@ -183,7 +162,7 @@ const FALLBACK_RANDOM: DiscoveryItem[] = [
     type: "channel",
     author: "Builders",
     handle: "/builders",
-    bio: "Builder-heavy channel with live app shipping, feedback loops, and less sludge.",
+    bio: "12 sampled casts from 8 active authors during the latest refresh.",
     reason: "Active niche channel with real operator density",
     href: "https://warpcast.com/~/channel/builders",
     engagement: "12 casts sampled · 8 active authors",
@@ -257,28 +236,32 @@ function isSpammyText(text: string): boolean {
   return /(airdrop|wl spot|mint now|dm me|guaranteed|passive income)/i.test(lowered) || (lowered.includes("http") && lowered.length < 40);
 }
 
-function normalizeHandle(value: string | null | undefined): string {
-  return (value ?? "").trim().toLowerCase().replace(/^@/, "");
+function mergeSettings(settings?: Partial<DiscoverySettings>): DiscoverySettings {
+  return {
+    blacklistedUsernames: [...new Set([...(DEFAULT_SETTINGS.blacklistedUsernames ?? []), ...(settings?.blacklistedUsernames ?? [])].map(normalizeHandle).filter(Boolean))],
+    blacklistedChannels: [...new Set([...(DEFAULT_SETTINGS.blacklistedChannels ?? []), ...(settings?.blacklistedChannels ?? [])].map(normalizeHandle).filter(Boolean))],
+    ignoredKeys: [...new Set((settings?.ignoredKeys ?? []).map((entry) => entry.trim()).filter(Boolean))],
+  };
 }
 
-function isBlacklistedUser(user: DiscoveryUser | null | undefined): boolean {
+function isBlacklistedUser(user: DiscoveryUser | null | undefined, settings: DiscoverySettings): boolean {
   const username = normalizeHandle(user?.username);
   const displayName = (user?.display_name ?? "").trim().toLowerCase();
-  if (BLACKLISTED_USERNAMES.has(username)) return true;
+  if (settings.blacklistedUsernames.includes(username)) return true;
   return BLACKLISTED_DISPLAY_NAMES.some((entry) => displayName.includes(entry));
 }
 
-function isBlacklistedCast(cast: DiscoveryCast): boolean {
-  if (isBlacklistedUser(cast.author)) return true;
-  const channelId = getChannelId(cast);
-  return Boolean(channelId && BLACKLISTED_CHANNELS.has(channelId.toLowerCase()));
+function isBlacklistedCast(cast: DiscoveryCast, settings: DiscoverySettings): boolean {
+  if (isBlacklistedUser(cast.author, settings)) return true;
+  const channelId = normalizeHandle(getChannelId(cast));
+  return Boolean(channelId && settings.blacklistedChannels.includes(channelId));
 }
 
-function isViableCast(cast: DiscoveryCast): boolean {
+function isViableCast(cast: DiscoveryCast, settings: DiscoverySettings): boolean {
   const username = getUsername(cast);
   const text = getText(cast);
   if (!cast.hash || !username) return false;
-  if (isBlacklistedCast(cast)) return false;
+  if (isBlacklistedCast(cast, settings)) return false;
   if (text.length < 24) return false;
   if (isSpammyText(text)) return false;
   const { likes, recasts, replies } = getEngagement(cast);
@@ -375,7 +358,7 @@ export function toDiscoveryChannel(aggregate: DiscoveryChannelAggregate): Discov
     type: "channel",
     author: displayName || slug,
     handle: `/${slug}`,
-    bio: aggregate.sampleText,
+    bio: `${aggregate.castCount} sampled casts from ${aggregate.uniqueAuthors} active authors during the latest refresh.`,
     reason:
       aggregate.uniqueAuthors >= 4
         ? "Active niche channel with multiple real operators posting"
@@ -387,12 +370,12 @@ export function toDiscoveryChannel(aggregate: DiscoveryChannelAggregate): Discov
   };
 }
 
-function capRankedCasts(casts: DiscoveryCast[]): DiscoveryCast[] {
+function capRankedCasts(casts: DiscoveryCast[], settings: DiscoverySettings): DiscoveryCast[] {
   const authorCounts = new Map<string, number>();
   const channelCounts = new Map<string, number>();
 
   return [...casts]
-    .filter(isViableCast)
+    .filter((cast) => isViableCast(cast, settings))
     .sort((left, right) => scoreCast(right) - scoreCast(left))
     .filter((cast) => {
       const username = getUsername(cast) ?? "unknown";
@@ -407,14 +390,14 @@ function capRankedCasts(casts: DiscoveryCast[]): DiscoveryCast[] {
     });
 }
 
-function buildChannelAggregates(casts: DiscoveryCast[]): DiscoveryChannelAggregate[] {
+function buildChannelAggregates(casts: DiscoveryCast[], settings: DiscoverySettings): DiscoveryChannelAggregate[] {
   const channels = new Map<string, DiscoveryChannelAggregate & { authors: Set<string> }>();
 
   for (const cast of casts) {
-    const channelId = getChannelId(cast);
+    const channelId = normalizeHandle(getChannelId(cast));
     const username = getUsername(cast);
-    if (!channelId || !username || BLACKLISTED_CHANNELS.has(channelId.toLowerCase())) continue;
-    if (isBlacklistedCast(cast)) continue;
+    if (!channelId || !username || settings.blacklistedChannels.includes(channelId)) continue;
+    if (isBlacklistedCast(cast, settings)) continue;
 
     const engagement = getEngagement(cast);
     const current = channels.get(channelId) ?? {
@@ -424,7 +407,6 @@ function buildChannelAggregates(casts: DiscoveryCast[]): DiscoveryChannelAggrega
       likes: 0,
       recasts: 0,
       replies: 0,
-      sampleText: getText(cast),
       authors: new Set<string>(),
     };
 
@@ -433,27 +415,21 @@ function buildChannelAggregates(casts: DiscoveryCast[]): DiscoveryChannelAggrega
     current.recasts += engagement.recasts;
     current.replies += engagement.replies;
     current.authors.add(username);
-    if (getText(cast).length > current.sampleText.length) {
-      current.sampleText = getText(cast);
-    }
     channels.set(channelId, current);
   }
 
   return [...channels.values()]
-    .map(({ authors, ...aggregate }) => ({
-      ...aggregate,
-      uniqueAuthors: authors.size,
-    }))
+    .map(({ authors, ...aggregate }) => ({ ...aggregate, uniqueAuthors: authors.size }))
     .filter((aggregate) => aggregate.castCount >= 2)
     .sort((left, right) => channelScore(right) - channelScore(left));
 }
 
-function uniqueUsersFromCasts(casts: DiscoveryCast[]): DiscoveryUserItem[] {
+function uniqueUsersFromCasts(casts: DiscoveryCast[], settings: DiscoverySettings): DiscoveryUserItem[] {
   const byId = new Map<string, DiscoveryUserItem>();
 
   for (const cast of [...casts].sort((left, right) => scoreCast(right) - scoreCast(left))) {
     const user = cast.author;
-    if (!user?.username || isBlacklistedUser(user)) continue;
+    if (!user?.username || isBlacklistedUser(user, settings)) continue;
     const key = String(user.fid ?? normalizeHandle(user.username));
     if (byId.has(key)) continue;
     byId.set(key, toDiscoveryUser(user));
@@ -463,16 +439,42 @@ function uniqueUsersFromCasts(casts: DiscoveryCast[]): DiscoveryUserItem[] {
   return [...byId.values()];
 }
 
-export function buildPoolsFromCasts(casts: DiscoveryCast[]): DiscoveryPools {
-  const rankedCasts = capRankedCasts(casts).slice(0, 12).map((cast) => toDiscoveryCast(cast));
-  const users = uniqueUsersFromCasts(casts).slice(0, 6);
-  const channels = buildChannelAggregates(casts)
+export function buildPoolsFromCasts(casts: DiscoveryCast[], settings?: Partial<DiscoverySettings>): DiscoveryPools {
+  const merged = mergeSettings(settings);
+  const rankedCasts = capRankedCasts(casts, merged).slice(0, 12).map((cast) => toDiscoveryCast(cast));
+  const users = uniqueUsersFromCasts(casts, merged).slice(0, 6);
+  const channels = buildChannelAggregates(casts, merged)
     .map((aggregate) => toDiscoveryChannel(aggregate))
     .slice(0, 4);
 
   return {
     random: [...rankedCasts, ...users, ...channels],
   };
+}
+
+function getIgnoreKey(item: DiscoveryItem): string {
+  if (item.type === "cast") return `cast:${item.hash}`;
+  if (item.type === "user") return `user:${item.username}`;
+  return `channel:${item.slug}`;
+}
+
+export function filterPool(items: DiscoveryItem[], settings?: Partial<DiscoverySettings>): DiscoveryItem[] {
+  const merged = mergeSettings(settings);
+  return items.filter((item) => {
+    const ignoreKey = getIgnoreKey(item);
+    if (merged.ignoredKeys.includes(ignoreKey)) return false;
+
+    if (item.type === "cast") {
+      if (merged.blacklistedUsernames.includes(normalizeHandle(item.authorUsername))) return false;
+      return !merged.blacklistedChannels.includes(normalizeHandle(item.channel));
+    }
+
+    if (item.type === "user") {
+      return !merged.blacklistedUsernames.includes(normalizeHandle(item.username));
+    }
+
+    return !merged.blacklistedChannels.includes(normalizeHandle(item.slug));
+  });
 }
 
 async function neynarFetch<T>(path: string, params: Record<string, string | number>): Promise<T> {
@@ -492,10 +494,7 @@ async function neynarFetch<T>(path: string, params: Record<string, string | numb
     cache: "no-store",
   });
 
-  if (!response.ok) {
-    throw new Error(`Neynar request failed: ${response.status}`);
-  }
-
+  if (!response.ok) throw new Error(`Neynar request failed: ${response.status}`);
   return (await response.json()) as T;
 }
 
@@ -510,7 +509,6 @@ async function fetchTrendingCasts(): Promise<DiscoveryCast[]> {
       feed_type: "filter",
       ...(cursor ? { cursor } : {}),
     });
-
     casts.push(...(response.casts ?? []));
     cursor = response.next?.cursor;
     if (!cursor) break;
@@ -523,7 +521,6 @@ async function buildLiveSnapshot(): Promise<DiscoverySnapshot> {
   const casts = await fetchTrendingCasts();
   const pools = buildPoolsFromCasts(casts);
   if (!pools.random.length) throw new Error("Discovery pool came back empty");
-
   return {
     pools,
     generatedAt: new Date().toISOString(),
@@ -538,9 +535,7 @@ const getCachedSnapshot = unstable_cache(buildLiveSnapshot, [DISCOVERY_CACHE_TAG
 function fallbackSnapshot(): DiscoverySnapshot {
   return {
     generatedAt: new Date().toISOString(),
-    pools: {
-      random: FALLBACK_RANDOM,
-    },
+    pools: { random: FALLBACK_RANDOM },
   };
 }
 
@@ -549,11 +544,11 @@ export async function rebuildDiscoveryPools(): Promise<DiscoverySnapshot> {
   return getCachedSnapshot();
 }
 
-export async function getDiscovery(_mode: DiscoveryMode, seenIds: string[]): Promise<DiscoveryResponse> {
+export async function getDiscovery(_mode: DiscoveryMode, seenIds: string[], settings?: Partial<DiscoverySettings>): Promise<DiscoveryResponse> {
   try {
     const snapshot = await getCachedSnapshot();
-    const pool = snapshot.pools.random;
-
+    const pool = filterPool(snapshot.pools.random, settings);
+    if (!pool.length) throw new Error("Filtered discovery pool came back empty");
     return {
       item: pickDiscoveryItem(pool, seenIds),
       mode: "random",
@@ -564,13 +559,13 @@ export async function getDiscovery(_mode: DiscoveryMode, seenIds: string[]): Pro
   } catch (error) {
     console.error("STMBL discovery fallback", error);
     const snapshot = fallbackSnapshot();
-    const pool = snapshot.pools.random;
+    const pool = filterPool(snapshot.pools.random, settings);
     return {
-      item: pickDiscoveryItem(pool, seenIds),
+      item: pickDiscoveryItem(pool.length ? pool : snapshot.pools.random, seenIds),
       mode: "random",
       generatedAt: snapshot.generatedAt,
-      poolSize: pool.length,
-      source: "fallback",
+      poolSize: pool.length ? pool.length : snapshot.pools.random.length,
+      source: pool.length ? "fallback" : "fallback",
     };
   }
 }
