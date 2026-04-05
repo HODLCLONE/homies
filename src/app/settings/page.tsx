@@ -6,7 +6,7 @@ export default function SettingsPage() {
       <div className="glass-panel sub-page-panel">
         <p className="eyebrow">Discovery tuning</p>
         <h1>Settings</h1>
-        <p>Planned controls: strictness, mode defaults, muted authors, muted channels, and anti-repeat tuning.</p>
+        <p>Planned controls: strictness, mode defaults, muted authors, muted channels, anti-repeat tuning, and pool refresh controls.</p>
         <Link href="/" className="text-link">
           Back to STMBL
         </Link>

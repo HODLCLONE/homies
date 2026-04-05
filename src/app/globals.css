@@ -139,6 +139,47 @@ a {
   gap: 1rem;
 }
 
+.hero-chip-row,
+.mode-row,
+.card-meta-row,
+.card-footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.hero-chip,
+.mode-pill,
+.item-type,
+.score-chip,
+.pool-caption {
+  border: 1px solid rgba(193, 240, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--accent-strong);
+  border-radius: 999px;
+  padding: 0.5rem 0.8rem;
+  backdrop-filter: blur(12px);
+}
+
+.mode-pill {
+  font: inherit;
+  cursor: pointer;
+}
+
+.mode-pill.is-active {
+  color: var(--bg-deep);
+  background: linear-gradient(180deg, var(--accent-strong), var(--accent));
+}
+
+.card-footer-row {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pool-caption {
+  font-size: 0.78rem;
+}
+
 .eyebrow {
   color: var(--accent);
   text-transform: uppercase;
