@@ -1,20 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { sdk } from "@farcaster/miniapp-sdk";
 import {
-  DISCOVERY_SETTINGS_STORAGE_KEY,
   defaultDiscoverySettings,
+  discoverySettingsStorageKeyForUser,
   joinList,
   parseList,
   type DiscoverySettings,
 } from "@/lib/discovery-config";
 
-function readSettings(): DiscoverySettings {
+function readSettings(storageKey: string): DiscoverySettings {
   if (typeof window === "undefined") return defaultDiscoverySettings();
 
   try {
-    const raw = window.localStorage.getItem(DISCOVERY_SETTINGS_STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKey);
     if (!raw) return defaultDiscoverySettings();
     const parsed = JSON.parse(raw) as Partial<DiscoverySettings>;
     return {
@@ -27,20 +28,52 @@ function readSettings(): DiscoverySettings {
   }
 }
 
-function writeSettings(settings: DiscoverySettings) {
+function writeSettings(storageKey: string, settings: DiscoverySettings) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(DISCOVERY_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  window.localStorage.setItem(storageKey, JSON.stringify(settings));
 }
 
 export default function SettingsPage() {
-  const initialSettings = useMemo(() => readSettings(), []);
+  const [storageKey, setStorageKey] = useState(() => discoverySettingsStorageKeyForUser());
+  const initialSettings = useMemo(() => readSettings(storageKey), [storageKey]);
   const [userBlacklist, setUserBlacklist] = useState(() => joinList(initialSettings.blacklistedUsernames));
   const [channelBlacklist, setChannelBlacklist] = useState(() => joinList(initialSettings.blacklistedChannels));
   const [ignoredKeys, setIgnoredKeys] = useState(() => initialSettings.ignoredKeys.join("\n"));
   const [saved, setSaved] = useState(false);
+  const [scopeLabel, setScopeLabel] = useState("anonymous browser session");
+
+  useEffect(() => {
+    let active = true;
+
+    sdk.context
+      .then((context) => {
+        if (!active) return;
+        const nextKey = discoverySettingsStorageKeyForUser(context.user.fid);
+        const nextSettings = readSettings(nextKey);
+        setStorageKey(nextKey);
+        setScopeLabel(context.user.username ? `@${context.user.username}` : `fid ${context.user.fid}`);
+        setUserBlacklist(joinList(nextSettings.blacklistedUsernames));
+        setChannelBlacklist(joinList(nextSettings.blacklistedChannels));
+        setIgnoredKeys(nextSettings.ignoredKeys.join("\n"));
+      })
+      .catch(() => {
+        if (!active) return;
+        const nextKey = discoverySettingsStorageKeyForUser();
+        const nextSettings = readSettings(nextKey);
+        setStorageKey(nextKey);
+        setScopeLabel("anonymous browser session");
+        setUserBlacklist(joinList(nextSettings.blacklistedUsernames));
+        setChannelBlacklist(joinList(nextSettings.blacklistedChannels));
+        setIgnoredKeys(nextSettings.ignoredKeys.join("\n"));
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const save = () => {
-    writeSettings({
+    writeSettings(storageKey, {
       blacklistedUsernames: parseList(userBlacklist),
       blacklistedChannels: parseList(channelBlacklist),
       ignoredKeys: ignoredKeys
@@ -53,9 +86,9 @@ export default function SettingsPage() {
   };
 
   const resetIgnored = () => {
-    const settings = readSettings();
+    const settings = readSettings(storageKey);
     const next = { ...settings, ignoredKeys: [] };
-    writeSettings(next);
+    writeSettings(storageKey, next);
     setIgnoredKeys("");
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1200);
@@ -66,6 +99,7 @@ export default function SettingsPage() {
       <div className="glass-panel sub-page-panel settings-panel">
         <p className="eyebrow">Discovery controls</p>
         <h1>Settings</h1>
+        <p className="body-copy">Settings scope: {scopeLabel}</p>
         <label className="settings-field">
           <span>Blacklisted accounts</span>
           <textarea

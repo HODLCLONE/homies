@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import {
-  DISCOVERY_SETTINGS_STORAGE_KEY,
   defaultDiscoverySettings,
+  discoverySettingsStorageKeyForUser,
   type DiscoverySettings,
 } from "@/lib/discovery-config";
 import type { DiscoveryItem, DiscoveryResponse } from "@/lib/discovery";
@@ -17,11 +17,11 @@ function getIgnoreKey(item: DiscoveryItem): string {
   return `channel:${item.slug}`;
 }
 
-function readSettings(): DiscoverySettings {
+function readSettings(storageKey: string): DiscoverySettings {
   if (typeof window === "undefined") return defaultDiscoverySettings();
 
   try {
-    const raw = window.localStorage.getItem(DISCOVERY_SETTINGS_STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKey);
     if (!raw) return defaultDiscoverySettings();
     const parsed = JSON.parse(raw) as Partial<DiscoverySettings>;
     return {
@@ -34,9 +34,9 @@ function readSettings(): DiscoverySettings {
   }
 }
 
-function writeSettings(settings: DiscoverySettings) {
+function writeSettings(storageKey: string, settings: DiscoverySettings) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(DISCOVERY_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  window.localStorage.setItem(storageKey, JSON.stringify(settings));
 }
 
 async function loadItem(seenIds: string[] = [], settings: DiscoverySettings): Promise<DiscoveryResponse> {
@@ -77,10 +77,29 @@ export function StmblClient() {
   const [item, setItem] = useState<DiscoveryItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [seenIds, setSeenIds] = useState<string[]>([]);
+  const [storageKey, setStorageKey] = useState(() => discoverySettingsStorageKeyForUser());
   const [settings, setSettings] = useState<DiscoverySettings>(defaultDiscoverySettings());
 
   useEffect(() => {
-    setSettings(readSettings());
+    let active = true;
+
+    sdk.context
+      .then((context) => {
+        if (!active) return;
+        const nextKey = discoverySettingsStorageKeyForUser(context.user.fid);
+        setStorageKey(nextKey);
+        setSettings(readSettings(nextKey));
+      })
+      .catch(() => {
+        if (!active) return;
+        const nextKey = discoverySettingsStorageKeyForUser();
+        setStorageKey(nextKey);
+        setSettings(readSettings(nextKey));
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const refresh = useCallback(async () => {
@@ -119,7 +138,7 @@ export function StmblClient() {
       ignoredKeys: [...new Set([...settings.ignoredKeys, getIgnoreKey(item)])],
     };
     setSettings(nextSettings);
-    writeSettings(nextSettings);
+    writeSettings(storageKey, nextSettings);
     setSeenIds((current) => [...new Set([...current, item.id])].slice(-MAX_SEEN_IDS));
     setItem(null);
   };

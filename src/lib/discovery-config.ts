@@ -16,6 +16,10 @@ export const DEFAULT_BLACKLISTED_CHANNELS = ["farcaster", "fc"];
 
 export const DISCOVERY_SETTINGS_STORAGE_KEY = "stmbl.discovery.settings.v1";
 
+export function discoverySettingsStorageKeyForUser(fid?: number | null): string {
+  return fid ? `${DISCOVERY_SETTINGS_STORAGE_KEY}.${fid}` : `${DISCOVERY_SETTINGS_STORAGE_KEY}.anon`;
+}
+
 export type DiscoverySettings = {
   blacklistedUsernames: string[];
   blacklistedChannels: string[];
