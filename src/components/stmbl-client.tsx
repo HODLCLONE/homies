@@ -2,11 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
-import {
-  defaultDiscoverySettings,
-  discoverySettingsStorageKeyForUser,
-  type DiscoverySettings,
-} from "@/lib/discovery-config";
+import { defaultDiscoverySettings, type DiscoverySettings } from "@/lib/discovery-config";
 import type { DiscoveryItem, DiscoveryResponse } from "@/lib/discovery";
 
 const MAX_SEEN_IDS = 40;
@@ -17,26 +13,24 @@ function getIgnoreKey(item: DiscoveryItem): string {
   return `channel:${item.slug}`;
 }
 
-function readSettings(storageKey: string): DiscoverySettings {
-  if (typeof window === "undefined") return defaultDiscoverySettings();
-
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return defaultDiscoverySettings();
-    const parsed = JSON.parse(raw) as Partial<DiscoverySettings>;
-    return {
-      blacklistedUsernames: parsed.blacklistedUsernames ?? defaultDiscoverySettings().blacklistedUsernames,
-      blacklistedChannels: parsed.blacklistedChannels ?? defaultDiscoverySettings().blacklistedChannels,
-      ignoredKeys: parsed.ignoredKeys ?? [],
-    };
-  } catch {
-    return defaultDiscoverySettings();
-  }
+async function loadServerSettings(fid: number | null): Promise<DiscoverySettings> {
+  if (!fid) return defaultDiscoverySettings();
+  const response = await fetch(`/api/settings?fid=${fid}`, { cache: "no-store" });
+  if (!response.ok) throw new Error("Failed to load settings");
+  const payload = (await response.json()) as { settings: DiscoverySettings };
+  return payload.settings;
 }
 
-function writeSettings(storageKey: string, settings: DiscoverySettings) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(storageKey, JSON.stringify(settings));
+async function saveServerSettings(fid: number | null, settings: DiscoverySettings): Promise<DiscoverySettings> {
+  if (!fid) return settings;
+  const response = await fetch("/api/settings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fid, settings }),
+  });
+  if (!response.ok) throw new Error("Failed to save settings");
+  const payload = (await response.json()) as { settings: DiscoverySettings };
+  return payload.settings;
 }
 
 async function loadItem(seenIds: string[] = [], settings: DiscoverySettings): Promise<DiscoveryResponse> {
@@ -77,24 +71,25 @@ export function StmblClient() {
   const [item, setItem] = useState<DiscoveryItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [seenIds, setSeenIds] = useState<string[]>([]);
-  const [storageKey, setStorageKey] = useState(() => discoverySettingsStorageKeyForUser());
+  const [fid, setFid] = useState<number | null>(null);
   const [settings, setSettings] = useState<DiscoverySettings>(defaultDiscoverySettings());
 
   useEffect(() => {
     let active = true;
 
     sdk.context
-      .then((context) => {
+      .then(async (context) => {
         if (!active) return;
-        const nextKey = discoverySettingsStorageKeyForUser(context.user.fid);
-        setStorageKey(nextKey);
-        setSettings(readSettings(nextKey));
+        const nextFid = context.user.fid;
+        setFid(nextFid);
+        const nextSettings = await loadServerSettings(nextFid);
+        if (!active) return;
+        setSettings(nextSettings);
       })
       .catch(() => {
         if (!active) return;
-        const nextKey = discoverySettingsStorageKeyForUser();
-        setStorageKey(nextKey);
-        setSettings(readSettings(nextKey));
+        setFid(null);
+        setSettings(defaultDiscoverySettings());
       });
 
     return () => {
@@ -138,7 +133,14 @@ export function StmblClient() {
       ignoredKeys: [...new Set([...settings.ignoredKeys, getIgnoreKey(item)])],
     };
     setSettings(nextSettings);
-    writeSettings(storageKey, nextSettings);
+    if (fid) {
+      try {
+        const saved = await saveServerSettings(fid, nextSettings);
+        setSettings(saved);
+      } catch {
+        // keep optimistic client state
+      }
+    }
     setSeenIds((current) => [...new Set([...current, item.id])].slice(-MAX_SEEN_IDS));
     setItem(null);
   };

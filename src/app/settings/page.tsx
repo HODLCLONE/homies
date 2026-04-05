@@ -1,44 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import {
   defaultDiscoverySettings,
-  discoverySettingsStorageKeyForUser,
   joinList,
   parseList,
   type DiscoverySettings,
 } from "@/lib/discovery-config";
 
-function readSettings(storageKey: string): DiscoverySettings {
-  if (typeof window === "undefined") return defaultDiscoverySettings();
-
-  try {
-    const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return defaultDiscoverySettings();
-    const parsed = JSON.parse(raw) as Partial<DiscoverySettings>;
-    return {
-      blacklistedUsernames: parsed.blacklistedUsernames ?? defaultDiscoverySettings().blacklistedUsernames,
-      blacklistedChannels: parsed.blacklistedChannels ?? defaultDiscoverySettings().blacklistedChannels,
-      ignoredKeys: parsed.ignoredKeys ?? [],
-    };
-  } catch {
-    return defaultDiscoverySettings();
-  }
+async function loadServerSettings(fid: number | null): Promise<DiscoverySettings> {
+  if (!fid) return defaultDiscoverySettings();
+  const response = await fetch(`/api/settings?fid=${fid}`, { cache: "no-store" });
+  if (!response.ok) throw new Error("Failed to load settings");
+  const payload = (await response.json()) as { settings: DiscoverySettings };
+  return payload.settings;
 }
 
-function writeSettings(storageKey: string, settings: DiscoverySettings) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(storageKey, JSON.stringify(settings));
+async function saveServerSettings(fid: number | null, settings: DiscoverySettings): Promise<DiscoverySettings> {
+  if (!fid) return settings;
+  const response = await fetch("/api/settings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fid, settings }),
+  });
+  if (!response.ok) throw new Error("Failed to save settings");
+  const payload = (await response.json()) as { settings: DiscoverySettings };
+  return payload.settings;
 }
 
 export default function SettingsPage() {
-  const [storageKey, setStorageKey] = useState(() => discoverySettingsStorageKeyForUser());
-  const initialSettings = useMemo(() => readSettings(storageKey), [storageKey]);
-  const [userBlacklist, setUserBlacklist] = useState(() => joinList(initialSettings.blacklistedUsernames));
-  const [channelBlacklist, setChannelBlacklist] = useState(() => joinList(initialSettings.blacklistedChannels));
-  const [ignoredKeys, setIgnoredKeys] = useState(() => initialSettings.ignoredKeys.join("\n"));
+  const [fid, setFid] = useState<number | null>(null);
+  const [userBlacklist, setUserBlacklist] = useState("");
+  const [channelBlacklist, setChannelBlacklist] = useState("");
+  const [ignoredKeys, setIgnoredKeys] = useState("");
   const [saved, setSaved] = useState(false);
   const [scopeLabel, setScopeLabel] = useState("anonymous browser session");
 
@@ -46,11 +42,12 @@ export default function SettingsPage() {
     let active = true;
 
     sdk.context
-      .then((context) => {
+      .then(async (context) => {
         if (!active) return;
-        const nextKey = discoverySettingsStorageKeyForUser(context.user.fid);
-        const nextSettings = readSettings(nextKey);
-        setStorageKey(nextKey);
+        const nextFid = context.user.fid;
+        const nextSettings = await loadServerSettings(nextFid);
+        if (!active) return;
+        setFid(nextFid);
         setScopeLabel(context.user.username ? `@${context.user.username}` : `fid ${context.user.fid}`);
         setUserBlacklist(joinList(nextSettings.blacklistedUsernames));
         setChannelBlacklist(joinList(nextSettings.blacklistedChannels));
@@ -58,13 +55,12 @@ export default function SettingsPage() {
       })
       .catch(() => {
         if (!active) return;
-        const nextKey = discoverySettingsStorageKeyForUser();
-        const nextSettings = readSettings(nextKey);
-        setStorageKey(nextKey);
+        setFid(null);
         setScopeLabel("anonymous browser session");
-        setUserBlacklist(joinList(nextSettings.blacklistedUsernames));
-        setChannelBlacklist(joinList(nextSettings.blacklistedChannels));
-        setIgnoredKeys(nextSettings.ignoredKeys.join("\n"));
+        const defaults = defaultDiscoverySettings();
+        setUserBlacklist(joinList(defaults.blacklistedUsernames));
+        setChannelBlacklist(joinList(defaults.blacklistedChannels));
+        setIgnoredKeys(defaults.ignoredKeys.join("\n"));
       });
 
     return () => {
@@ -72,24 +68,33 @@ export default function SettingsPage() {
     };
   }, []);
 
-  const save = () => {
-    writeSettings(storageKey, {
+  const save = async () => {
+    const next = {
       blacklistedUsernames: parseList(userBlacklist),
       blacklistedChannels: parseList(channelBlacklist),
       ignoredKeys: ignoredKeys
         .split(/\n/)
         .map((entry) => entry.trim())
         .filter(Boolean),
-    });
+    } satisfies DiscoverySettings;
+
+    const savedSettings = await saveServerSettings(fid, next);
+    setUserBlacklist(joinList(savedSettings.blacklistedUsernames));
+    setChannelBlacklist(joinList(savedSettings.blacklistedChannels));
+    setIgnoredKeys(savedSettings.ignoredKeys.join("\n"));
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1200);
   };
 
-  const resetIgnored = () => {
-    const settings = readSettings(storageKey);
-    const next = { ...settings, ignoredKeys: [] };
-    writeSettings(storageKey, next);
-    setIgnoredKeys("");
+  const resetIgnored = async () => {
+    const next = {
+      blacklistedUsernames: parseList(userBlacklist),
+      blacklistedChannels: parseList(channelBlacklist),
+      ignoredKeys: [],
+    } satisfies DiscoverySettings;
+
+    const savedSettings = await saveServerSettings(fid, next);
+    setIgnoredKeys(savedSettings.ignoredKeys.join("\n"));
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1200);
   };
@@ -128,10 +133,10 @@ export default function SettingsPage() {
           />
         </label>
         <div className="action-row">
-          <button type="button" className="action-button text-link" onClick={save}>
+          <button type="button" className="action-button text-link" onClick={() => void save()}>
             {saved ? "Saved" : "Save"}
           </button>
-          <button type="button" className="action-button" onClick={resetIgnored}>
+          <button type="button" className="action-button" onClick={() => void resetIgnored()}>
             Clear ignored
           </button>
           <Link href="/" className="action-button">
