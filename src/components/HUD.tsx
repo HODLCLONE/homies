@@ -1,6 +1,11 @@
 import { claimBoost, upgradeClickPower, useGameStore } from '../store/useGameStore';
 
 const format = (value: number) => new Intl.NumberFormat('en-US').format(value);
+const ROOM_CAPACITY_BY_LEVEL: Record<number, number> = {
+  1: 5,
+  2: 10,
+  3: 20,
+};
 
 type HUDSection = 'top' | 'bottom';
 
@@ -18,7 +23,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/80">
-      <span className="text-white/55">{label}</span> <span className="text-amber-100">{value}</span>
+      <span className="text-white/55">{label}</span> <span className="text-lime-100">{value}</span>
     </div>
   );
 }
@@ -26,14 +31,12 @@ function MetaChip({ label, value }: { label: string; value: string }) {
 function ActionButton({
   title,
   subtitle,
-  image,
   accent,
   onClick,
   disabled = false,
 }: {
   title: string;
   subtitle: string;
-  image: string;
   accent: string;
   onClick: () => void;
   disabled?: boolean;
@@ -43,17 +46,19 @@ function ActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="group relative flex min-h-[96px] items-stretch overflow-hidden rounded-[26px] border border-white/10 bg-[#0b1425]/85 text-left shadow-soft transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+      className="group relative flex min-h-[96px] items-stretch overflow-hidden rounded-[26px] border border-white/10 bg-[#0b1425]/92 text-left shadow-soft transition duration-200 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
     >
-      <div className={`absolute inset-y-0 left-0 w-1.5 ${accent}`} />
-      <div className="flex flex-1 flex-col justify-center gap-1 px-4 py-4 pr-2">
-        <span className="text-xs font-black uppercase tracking-[0.32em] text-white/85 sm:text-sm">{title}</span>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-100/78">{subtitle}</span>
+      <div className={`absolute inset-x-0 top-0 h-1 ${accent}`} />
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.06] via-transparent to-black/30 opacity-90 transition group-hover:opacity-100" />
+      <div className="flex flex-1 flex-col justify-center gap-1 px-4 py-4 pr-3">
+        <span className="text-xs font-black uppercase tracking-[0.32em] text-white/92 sm:text-sm">{title}</span>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-lime-100/85">{subtitle}</span>
       </div>
-      <div className="relative flex w-28 items-center justify-center border-l border-white/10 bg-white/5 px-2 sm:w-32">
-        <img src={image} alt="" className="h-full w-full object-contain opacity-90" draggable={false} />
+      <div className="relative flex w-24 items-center justify-center border-l border-white/10 bg-white/5 px-2 sm:w-28">
+        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-[#08111f] text-xl font-black text-white shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_14px_30px_rgba(0,0,0,0.35)] ${accent}`.trim()}>
+          {title === 'Upgrade' ? '↗' : '⚡'}
+        </div>
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/15 opacity-80" />
     </button>
   );
 }
@@ -63,6 +68,8 @@ export default function HUD({ section }: { section: HUDSection }) {
   const upgradeCost = Math.max(25, 25 + (state.clickPower - 1) * 10);
   const boostGain = Math.max(8, state.clickPower * 4);
   const canUpgrade = state.coins >= upgradeCost;
+  const capacity = ROOM_CAPACITY_BY_LEVEL[state.roomLevel] ?? ROOM_CAPACITY_BY_LEVEL[3];
+  const roomCapacityText = `0 / ${capacity} Homies`;
 
   if (section === 'top') {
     return (
@@ -75,11 +82,12 @@ export default function HUD({ section }: { section: HUDSection }) {
             draggable={false}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/25" />
-          <div className="relative z-10 grid grid-cols-2 gap-2 px-3 py-3 sm:px-4 sm:py-4 md:grid-cols-4">
+          <div className="relative z-10 grid grid-cols-2 gap-2 px-3 py-3 sm:px-4 sm:py-4 md:grid-cols-5">
             <StatCard label="Coins" value={format(state.coins)} />
             <StatCard label="Taps" value={format(state.taps)} />
             <StatCard label="Click Power" value={`x${state.clickPower}`} />
             <StatCard label="Room" value={`Lv ${state.roomLevel}`} />
+            <StatCard label="Capacity" value={roomCapacityText} />
           </div>
         </div>
       </div>
@@ -104,6 +112,7 @@ export default function HUD({ section }: { section: HUDSection }) {
         <div className="mt-4 grid grid-cols-2 gap-2">
           <MetaChip label="Click Power" value={`x${state.clickPower}`} />
           <MetaChip label="Boost" value={`+${boostGain}`} />
+          <MetaChip label="Room Capacity" value={roomCapacityText} />
         </div>
       </div>
 
@@ -111,16 +120,14 @@ export default function HUD({ section }: { section: HUDSection }) {
         <ActionButton
           title="Upgrade"
           subtitle={`Cost ${format(upgradeCost)} coins`}
-          image="/assets/buttons/btn_upgrade.png"
-          accent="bg-amber-400"
+          accent="bg-lime-300"
           onClick={upgradeClickPower}
           disabled={!canUpgrade}
         />
         <ActionButton
           title="Boost"
           subtitle={`Gain +${format(boostGain)} coins`}
-          image="/assets/buttons/btn_boost.png"
-          accent="bg-fuchsia-500"
+          accent="bg-yellow-300"
           onClick={claimBoost}
         />
       </div>

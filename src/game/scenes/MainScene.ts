@@ -1,8 +1,6 @@
 import * as Phaser from 'phaser';
 import { tapCharacter } from '../../store/useGameStore';
 
-type SlotPositions = Record<string, [number, number][]>;
-
 type LayoutState = {
   roomX: number;
   roomY: number;
@@ -20,7 +18,6 @@ export default class MainScene extends Phaser.Scene {
   private homie!: Phaser.GameObjects.Image;
   private homieHitZone!: Phaser.GameObjects.Rectangle;
   private homieBaseScale = 1;
-  private slots: Phaser.GameObjects.Image[] = [];
   private layoutState: LayoutState = {
     roomX: 0,
     roomY: 0,
@@ -31,6 +28,7 @@ export default class MainScene extends Phaser.Scene {
     roomScale: 1,
     homieBounds: null,
   };
+
   private onGlobalPointerDown = (pointer: Phaser.Input.Pointer) => {
     if (!this.layoutState.homieBounds) return;
 
@@ -43,8 +41,6 @@ export default class MainScene extends Phaser.Scene {
   preload() {
     this.load.image('room_lvl_1_starter', '/assets/rooms/room_lvl_1_starter.png');
     this.load.image('homie_player_idle', '/assets/character/homie_player_idle_clean.png');
-    this.load.image('slot_empty', '/assets/slots/slot_empty.png');
-    this.load.json('slot_positions', '/assets/slot_positions.json');
   }
 
   create() {
@@ -52,21 +48,6 @@ export default class MainScene extends Phaser.Scene {
 
     this.room = this.add.image(0, 0, 'room_lvl_1_starter').setOrigin(0.5);
     this.room.setDepth(0);
-
-    const slotPositions = this.cache.json.get('slot_positions') as SlotPositions | undefined;
-    const roomSlots = slotPositions?.room_lvl_1_starter?.slice(0, 5) ?? [
-      [0.4, 0.57],
-      [0.5, 0.55],
-      [0.6, 0.57],
-      [0.45, 0.67],
-      [0.55, 0.67],
-    ];
-
-    this.slots = roomSlots.map(() => this.add.image(0, 0, 'slot_empty').setOrigin(0.5));
-    this.slots.forEach((slot) => {
-      slot.setDepth(1);
-      slot.setAlpha(0.95);
-    });
 
     this.homie = this.add.image(0, 0, 'homie_player_idle').setOrigin(0.5, 1);
     this.homie.setDepth(3);
@@ -148,7 +129,6 @@ export default class MainScene extends Phaser.Scene {
     const height = this.scale.height;
     const roomFrame = this.textures.getFrame('room_lvl_1_starter');
     const homieFrame = this.textures.getFrame('homie_player_idle');
-    const slotFrame = this.textures.getFrame('slot_empty');
 
     const roomNaturalWidth = roomFrame.width;
     const roomNaturalHeight = roomFrame.height;
@@ -163,13 +143,6 @@ export default class MainScene extends Phaser.Scene {
 
     this.room.setPosition(roomX, roomY);
     this.room.setDisplaySize(roomDisplayWidth, roomDisplayHeight);
-
-    const slotPositions = (this.cache.json.get('slot_positions') as SlotPositions | undefined)?.room_lvl_1_starter?.slice(0, 5) ?? [];
-    this.slots.forEach((slot, index) => {
-      const position = slotPositions[index] ?? [0.5, 0.6];
-      slot.setPosition(roomLeft + position[0] * roomDisplayWidth, roomTop + position[1] * roomDisplayHeight);
-      slot.setDisplaySize(slotFrame.width * roomScale, slotFrame.height * roomScale);
-    });
 
     const homieScale = roomScale * 0.13;
     const homieDisplayWidth = homieFrame.width * homieScale;
