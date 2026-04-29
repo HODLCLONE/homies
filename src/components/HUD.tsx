@@ -11,18 +11,16 @@ type HUDSection = 'top' | 'bottom';
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 backdrop-blur-md">
-      <span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">{label}</span>
-      <span className="block text-xl font-black leading-none text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] sm:text-2xl">
-        {value}
-      </span>
+    <div className="stat rounded-2xl border border-white/10 bg-[#0b141d] px-3 py-2.5">
+      <span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-white/55">{label}</span>
+      <span className="block text-lg font-black leading-none text-white sm:text-xl">{value}</span>
     </div>
   );
 }
 
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/80">
+    <div className="rounded-full border border-white/10 bg-[#0b141d] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/80">
       <span className="text-white/55">{label}</span> <span className="text-lime-100">{value}</span>
     </div>
   );
@@ -37,27 +35,28 @@ function ActionButton({
 }: {
   title: string;
   subtitle: string;
-  accent: string;
+  accent: 'lime' | 'yellow';
   onClick: () => void;
   disabled?: boolean;
 }) {
+  const accentClasses =
+    accent === 'lime'
+      ? 'border-lime-300/40 text-lime-200 hover:border-lime-200/55 hover:bg-lime-300/10'
+      : 'border-yellow-300/40 text-yellow-100 hover:border-yellow-200/55 hover:bg-yellow-300/10';
+
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="group relative flex min-h-[96px] items-stretch overflow-hidden rounded-[26px] border border-white/10 bg-[#0b1425]/92 text-left shadow-soft transition duration-200 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+      className={`group flex min-h-[92px] items-center justify-between gap-4 rounded-[22px] border bg-[#0b141d] px-4 py-3 text-left transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55 ${accentClasses}`}
     >
-      <div className={`absolute inset-x-0 top-0 h-1 ${accent}`} />
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.06] via-transparent to-black/30 opacity-90 transition group-hover:opacity-100" />
-      <div className="flex flex-1 flex-col justify-center gap-1 px-4 py-4 pr-3">
-        <span className="text-xs font-black uppercase tracking-[0.32em] text-white/92 sm:text-sm">{title}</span>
-        <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-lime-100/85">{subtitle}</span>
+      <div className="min-w-0">
+        <span className="block text-xs font-black uppercase tracking-[0.32em] text-white sm:text-sm">{title}</span>
+        <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-white/65">{subtitle}</span>
       </div>
-      <div className="relative flex w-24 items-center justify-center border-l border-white/10 bg-white/5 px-2 sm:w-28">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-[#08111f] text-xl font-black text-white shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_14px_30px_rgba(0,0,0,0.35)] ${accent}`.trim()}>
-          {title === 'Upgrade' ? '↗' : '⚡'}
-        </div>
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/20 text-lg font-black text-white">
+        {title === 'Upgrade' ? '↗' : '⚡'}
       </div>
     </button>
   );
@@ -73,36 +72,27 @@ export default function HUD({ section }: { section: HUDSection }) {
 
   if (section === 'top') {
     return (
-      <div className="mx-auto w-full max-w-5xl">
-        <div className="relative mx-auto w-full max-w-4xl overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1425]/75 shadow-soft backdrop-blur-xl">
-          <img
-            src="/assets/ui/ui_topbar_currencies.png"
-            alt=""
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-85"
-            draggable={false}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-black/25" />
-          <div className="relative z-10 grid grid-cols-2 gap-2 px-3 py-3 sm:px-4 sm:py-4 md:grid-cols-5">
-            <StatCard label="Coins" value={format(state.coins)} />
-            <StatCard label="Taps" value={format(state.taps)} />
-            <StatCard label="Click Power" value={`x${state.clickPower}`} />
-            <StatCard label="Room" value={`Lv ${state.roomLevel}`} />
-            <StatCard label="Capacity" value={roomCapacityText} />
-          </div>
+      <div className="mx-auto w-full max-w-6xl">
+        <div className="hero grid grid-cols-2 gap-2 md:grid-cols-5">
+          <StatCard label="Coins" value={format(state.coins)} />
+          <StatCard label="Taps" value={format(state.taps)} />
+          <StatCard label="Click Power" value={`x${state.clickPower}`} />
+          <StatCard label="Room" value={`Lv ${state.roomLevel}`} />
+          <StatCard label="Capacity" value={roomCapacityText} />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-5xl gap-3 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-      <div className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1425]/78 p-4 shadow-soft backdrop-blur-xl sm:p-5">
+    <div className="stats mx-auto grid w-full max-w-6xl gap-3 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+      <div className="rounded-[24px] border border-white/10 bg-[#0b141d] p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.35em] text-white/70">Homies</p>
-            <p className="mt-1 text-sm font-medium text-white/75">Room 1</p>
+            <p className="mt-1 text-sm font-medium text-white/72">Room 1</p>
           </div>
-          <div className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-200">
+          <div className="rounded-full border border-lime-300/20 bg-lime-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-lime-200">
             Fully interactive
           </div>
         </div>
@@ -120,16 +110,11 @@ export default function HUD({ section }: { section: HUDSection }) {
         <ActionButton
           title="Upgrade"
           subtitle={`Cost ${format(upgradeCost)} coins`}
-          accent="bg-lime-300"
+          accent="lime"
           onClick={upgradeClickPower}
           disabled={!canUpgrade}
         />
-        <ActionButton
-          title="Boost"
-          subtitle={`Gain +${format(boostGain)} coins`}
-          accent="bg-yellow-300"
-          onClick={claimBoost}
-        />
+        <ActionButton title="Boost" subtitle={`Gain +${format(boostGain)} coins`} accent="yellow" onClick={claimBoost} />
       </div>
     </div>
   );

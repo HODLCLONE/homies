@@ -50,6 +50,6 @@ export default function Game(): React.ReactElement {
 
   return React.createElement('div', {
     ref: hostRef,
-    className: 'relative flex-1 min-h-[42svh] w-full overflow-hidden rounded-[28px] border border-white/10 bg-[#08111f] shadow-soft',
+    className: 'game-host relative flex-1 min-h-[42svh] w-full overflow-hidden rounded-none border-0 bg-transparent shadow-none',
   });
 }
