@@ -18,6 +18,7 @@ export default class MainScene extends Phaser.Scene {
   private room!: Phaser.GameObjects.Image;
   private homie!: Phaser.GameObjects.Image;
   private homieHitZone!: Phaser.GameObjects.Rectangle;
+  private homieBaseScale = 1;
   private slots: Phaser.GameObjects.Image[] = [];
   private layoutState: LayoutState = {
     roomX: 0,
@@ -40,7 +41,7 @@ export default class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image('room_lvl_1_starter', '/assets/rooms/room_lvl_1_starter.png');
-    this.load.image('homie_player_idle', '/assets/character/homie_player_idle.png');
+    this.load.image('homie_player_idle', '/assets/character/homie_player_idle_clean.png');
     this.load.image('slot_empty', '/assets/slots/slot_empty.png');
     this.load.json('slot_positions', '/assets/slot_positions.json');
   }
@@ -121,13 +122,19 @@ export default class MainScene extends Phaser.Scene {
   }
 
   private pulseHomie() {
+    this.tweens.killTweensOf(this.homie);
+    this.homie.setScale(this.homieBaseScale);
+
     this.tweens.add({
       targets: this.homie,
-      scaleX: this.homie.scaleX * 1.04,
-      scaleY: this.homie.scaleY * 0.98,
+      scaleX: this.homieBaseScale * 1.04,
+      scaleY: this.homieBaseScale * 0.98,
       yoyo: true,
       duration: 90,
       ease: 'Quad.easeOut',
+      onComplete: () => {
+        this.homie.setScale(this.homieBaseScale);
+      },
     });
   }
 
@@ -165,6 +172,7 @@ export default class MainScene extends Phaser.Scene {
     const homieX = roomLeft + roomDisplayWidth * 0.46;
     const homieBottomY = roomTop + roomDisplayHeight * 0.79;
 
+    this.homieBaseScale = homieScale;
     this.homie.setScale(homieScale);
     this.homie.setPosition(homieX, homieBottomY);
 
