@@ -138,19 +138,19 @@ export default class MainScene extends Phaser.Scene {
 
     const roomNaturalWidth = roomFrame.width;
     const roomNaturalHeight = roomFrame.height;
-    const roomScale = Math.min((width * 0.9) / roomNaturalWidth, (height * 0.85) / roomNaturalHeight);
+    const roomScale = Math.min((width * 1.06) / roomNaturalWidth, (height * 0.96) / roomNaturalHeight);
     const roomDisplayWidth = roomNaturalWidth * roomScale;
     const roomDisplayHeight = roomNaturalHeight * roomScale;
 
     const roomX = width / 2;
-    const roomY = height / 2 + Math.max(4, height * 0.02);
+    const roomY = height / 2 + Math.max(2, height * 0.01);
     const roomLeft = roomX - roomDisplayWidth / 2;
     const roomTop = roomY - roomDisplayHeight / 2;
 
     this.room.setPosition(roomX, roomY);
     this.room.setDisplaySize(roomDisplayWidth, roomDisplayHeight);
 
-    const homieScale = roomScale * 0.14;
+    const homieScale = roomScale * 0.17;
     const homieDisplayWidth = homieFrame.width * homieScale;
     const homieDisplayHeight = homieFrame.height * homieScale;
     const homieX = roomLeft + roomDisplayWidth * 0.46;

@@ -162,7 +162,7 @@ export default function App() {
 
   return (
     <div className="app bg-ink text-white">
-      <div className="flex h-full min-h-0 flex-col px-3 pt-[max(8px,env(safe-area-inset-top))] pb-[max(96px,env(safe-area-inset-bottom))] sm:px-4 sm:pt-3">
+      <div className="flex h-full min-h-0 flex-col px-3 pt-[max(4px,env(safe-area-inset-top))] pb-[max(92px,env(safe-area-inset-bottom))] sm:px-4 sm:pt-2">
         <header className="shrink-0">
           <HUD section="top" />
         </header>
