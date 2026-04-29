@@ -26,6 +26,29 @@ button {
   font: inherit;
 }
 
+.action {
+  padding: 16px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.action span,
+.action strong {
+  display: block;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.action strong {
+  font-size: 11px;
+}
+
+.actions {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .app {
   height: 100dvh;
   overflow: hidden;

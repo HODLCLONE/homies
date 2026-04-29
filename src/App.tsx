@@ -27,13 +27,13 @@ function NavButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex min-h-[60px] flex-1 items-center justify-center rounded-[18px] border px-3 text-sm font-extrabold uppercase tracking-[0.28em] transition active:scale-[0.98] ${
+      className={`action flex min-h-[60px] flex-1 items-center justify-center rounded-[18px] border px-3 text-sm font-extrabold uppercase tracking-[0.28em] transition active:scale-[0.98] ${
         active
           ? 'border-lime-300/40 bg-lime-300/15 text-lime-100 shadow-[0_0_0_1px_rgba(163,230,53,0.12)]'
           : 'border-white/10 bg-white/5 text-white/72 hover:bg-white/8'
       }`}
     >
-      {label}
+      <strong>{label}</strong>
     </button>
   );
 }
@@ -174,7 +174,7 @@ export default function App() {
 
       <nav className="fixed bottom-[max(10px,env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-1rem)] max-w-xl -translate-x-1/2">
         <div className="rounded-[26px] border border-white/10 bg-[#0b141dd9] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.42)] backdrop-blur-xl">
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid actions grid-cols-4 gap-2">
             <NavButton active={activePanel === 'upgrade'} label="Upgrade" onClick={() => openPanel('upgrade')} />
             <NavButton active={activePanel === 'auto'} label="Auto" onClick={() => openPanel('auto')} />
             <NavButton active={activePanel === 'room'} label="Room" onClick={() => openPanel('room')} />
