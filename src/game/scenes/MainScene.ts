@@ -38,6 +38,10 @@ export default class MainScene extends Phaser.Scene {
     }
   };
 
+  private onResize = () => {
+    this.layout();
+  };
+
   preload() {
     this.load.image('room_lvl_1_starter', '/assets/rooms/room_lvl_1_starter.png');
     this.load.image('homie_player_idle', '/assets/character/OGHomie.png');
@@ -57,6 +61,7 @@ export default class MainScene extends Phaser.Scene {
     this.homieHitZone.setInteractive({ useHandCursor: true });
 
     this.input.on(Phaser.Input.Events.POINTER_DOWN, this.onGlobalPointerDown);
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
 
     this.layout();
@@ -70,6 +75,7 @@ export default class MainScene extends Phaser.Scene {
 
   private shutdown() {
     this.input.off(Phaser.Input.Events.POINTER_DOWN, this.onGlobalPointerDown);
+    this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize);
   }
 
   private handleHomieTap(x: number, y: number) {

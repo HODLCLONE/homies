@@ -9,20 +9,22 @@ export default function Game(): React.ReactElement {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   const sceneRef = useRef<MainScene | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const roomLevel = useGameStore((state) => state.roomLevel);
   const roomLevelRef = useRef(roomLevel);
 
   useEffect(() => {
     if (!hostRef.current || gameRef.current) return;
 
+    const host = hostRef.current;
     const game = new Phaser.Game({
       type: Phaser.AUTO,
-      parent: hostRef.current,
+      parent: host,
       backgroundColor: '#08111f',
       scale: {
         mode: Phaser.Scale.NONE,
-        width: hostRef.current.clientWidth || window.innerWidth,
-        height: hostRef.current.clientHeight || window.innerHeight,
+        width: host.clientWidth || window.innerWidth,
+        height: host.clientHeight || window.innerHeight,
       },
       render: {
         antialias: true,
@@ -34,7 +36,17 @@ export default function Game(): React.ReactElement {
     gameRef.current = game;
     sceneRef.current = game.scene.getScene('MainScene') as MainScene;
 
+    resizeObserverRef.current = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry || !gameRef.current) return;
+      const { width, height } = entry.contentRect;
+      gameRef.current.scale.resize(Math.max(1, Math.floor(width)), Math.max(1, Math.floor(height)));
+    });
+    resizeObserverRef.current.observe(host);
+
     return () => {
+      resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
       sceneRef.current = null;
       gameRef.current = null;
       game.destroy(true);
@@ -50,6 +62,6 @@ export default function Game(): React.ReactElement {
 
   return React.createElement('div', {
     ref: hostRef,
-    className: 'game-host relative flex-1 min-h-[42svh] w-full overflow-hidden rounded-none border-0 bg-transparent shadow-none',
+    className: 'game-area relative flex-1 min-h-0 w-full overflow-hidden rounded-none border-0 bg-transparent shadow-none',
   });
 }
