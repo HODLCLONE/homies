@@ -2,6 +2,7 @@ import {
   getRoomUpgradeCost,
   upgradeAutoClick,
   upgradeClickPower,
+  upgradeRoom,
   useGameStore,
 } from '../store/useGameStore';
 
@@ -127,6 +128,13 @@ export default function HUD({ section }: { section: HUDSection }) {
           accent="yellow"
           onClick={upgradeAutoClick}
           disabled={!canAutoClick}
+        />
+        <ActionButton
+          title="Room Up"
+          subtitle={`Lv ${state.roomLevel + 1} • Cost ${format(roomUpgradeCost)} coins`}
+          accent="lime"
+          onClick={upgradeRoom}
+          disabled={state.coins < roomUpgradeCost}
         />
       </div>
     </div>

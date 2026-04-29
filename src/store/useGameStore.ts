@@ -88,7 +88,8 @@ function getAutoClickCost() {
 }
 
 export function getRoomUpgradeCost(nextRoomLevel = state.roomLevel + 1) {
-  return Math.max(2500, Math.floor(2500 * Math.pow(Math.max(1, nextRoomLevel - 1), 2.1)));
+  const levelIndex = Math.max(1, nextRoomLevel - 1);
+  return Math.max(12500, Math.floor(12500 * Math.pow(levelIndex, 2.1)));
 }
 
 export function getGameState() {
