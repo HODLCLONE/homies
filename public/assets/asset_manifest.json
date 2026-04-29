@@ -1,0 +1,950 @@
+{
+  "rooms/room_lvl_1_starter.png": {
+    "box": [
+      175,
+      45,
+      370,
+      245
+    ],
+    "size": [
+      190,
+      200
+    ]
+  },
+  "rooms/room_lvl_2_expanded.png": {
+    "box": [
+      388,
+      43,
+      592,
+      250
+    ],
+    "size": [
+      194,
+      207
+    ]
+  },
+  "rooms/room_lvl_3_hq.png": {
+    "box": [
+      602,
+      38,
+      888,
+      254
+    ],
+    "size": [
+      283,
+      213
+    ]
+  },
+  "floors/floor_base.png": {
+    "box": [
+      1245,
+      38,
+      1415,
+      116
+    ],
+    "size": [
+      170,
+      70
+    ]
+  },
+  "floors/floor_rug_green.png": {
+    "box": [
+      1240,
+      122,
+      1420,
+      202
+    ],
+    "size": [
+      180,
+      80
+    ]
+  },
+  "floors/floor_rug_purple.png": {
+    "box": [
+      1240,
+      207,
+      1420,
+      286
+    ],
+    "size": [
+      180,
+      78
+    ]
+  },
+  "slots/slot_empty.png": {
+    "box": [
+      928,
+      55,
+      1002,
+      132
+    ],
+    "size": [
+      68,
+      72
+    ]
+  },
+  "slots/slot_available.png": {
+    "box": [
+      1030,
+      53,
+      1128,
+      145
+    ],
+    "size": [
+      83,
+      83
+    ]
+  },
+  "slots/slot_locked.png": {
+    "box": [
+      928,
+      165,
+      1003,
+      246
+    ],
+    "size": [
+      71,
+      76
+    ]
+  },
+  "slots/slot_occupied.png": {
+    "box": [
+      1026,
+      162,
+      1129,
+      260
+    ],
+    "size": [
+      84,
+      81
+    ]
+  },
+  "objects/obj_couch.png": {
+    "box": [
+      15,
+      363,
+      126,
+      427
+    ],
+    "size": [
+      105,
+      60
+    ]
+  },
+  "objects/obj_coffee_table.png": {
+    "box": [
+      132,
+      371,
+      242,
+      427
+    ],
+    "size": [
+      89,
+      26
+    ]
+  },
+  "objects/obj_tv.png": {
+    "box": [
+      252,
+      350,
+      344,
+      424
+    ],
+    "size": [
+      90,
+      53
+    ]
+  },
+  "objects/obj_tv_stand.png": {
+    "box": [
+      346,
+      348,
+      441,
+      431
+    ],
+    "size": [
+      95,
+      60
+    ]
+  },
+  "objects/obj_plant.png": {
+    "box": [
+      437,
+      326,
+      494,
+      431
+    ],
+    "size": [
+      46,
+      73
+    ]
+  },
+  "objects/obj_laptop.png": {
+    "box": [
+      18,
+      470,
+      98,
+      542
+    ],
+    "size": [
+      71,
+      72
+    ]
+  },
+  "objects/obj_game_controller.png": {
+    "box": [
+      135,
+      474,
+      222,
+      531
+    ],
+    "size": [
+      67,
+      30
+    ]
+  },
+  "objects/obj_coffee_cup.png": {
+    "box": [
+      252,
+      466,
+      318,
+      541
+    ],
+    "size": [
+      60,
+      62
+    ]
+  },
+  "objects/obj_trash_bin.png": {
+    "box": [
+      332,
+      464,
+      392,
+      543
+    ],
+    "size": [
+      60,
+      65
+    ]
+  },
+  "objects/obj_basketball.png": {
+    "box": [
+      421,
+      464,
+      489,
+      538
+    ],
+    "size": [
+      51,
+      50
+    ]
+  },
+  "objects/obj_skateboard.png": {
+    "box": [
+      18,
+      579,
+      110,
+      634
+    ],
+    "size": [
+      82,
+      55
+    ]
+  },
+  "objects/obj_shelf.png": {
+    "box": [
+      135,
+      555,
+      218,
+      641
+    ],
+    "size": [
+      83,
+      79
+    ]
+  },
+  "objects/obj_poster_hodl.png": {
+    "box": [
+      229,
+      551,
+      288,
+      650
+    ],
+    "size": [
+      59,
+      92
+    ]
+  },
+  "objects/obj_neon_hodl.png": {
+    "box": [
+      386,
+      565,
+      473,
+      630
+    ],
+    "size": [
+      77,
+      65
+    ]
+  },
+  "objects/obj_skateboard_vertical.png": {
+    "box": [
+      42,
+      641,
+      88,
+      720
+    ],
+    "size": [
+      46,
+      78
+    ]
+  },
+  "objects/obj_hanging_lamp.png": {
+    "box": [
+      132,
+      652,
+      198,
+      731
+    ],
+    "size": [
+      65,
+      72
+    ]
+  },
+  "objects/obj_safe.png": {
+    "box": [
+      205,
+      645,
+      291,
+      730
+    ],
+    "size": [
+      57,
+      79
+    ]
+  },
+  "objects/obj_rug.png": {
+    "box": [
+      296,
+      656,
+      417,
+      721
+    ],
+    "size": [
+      121,
+      65
+    ]
+  },
+  "objects/obj_floor_cup.png": {
+    "box": [
+      415,
+      648,
+      480,
+      724
+    ],
+    "size": [
+      63,
+      70
+    ]
+  },
+  "ui/ui_topbar_currencies.png": {
+    "box": [
+      502,
+      318,
+      925,
+      385
+    ],
+    "size": [
+      423,
+      67
+    ]
+  },
+  "ui/ui_player_panel.png": {
+    "box": [
+      503,
+      392,
+      927,
+      513
+    ],
+    "size": [
+      424,
+      121
+    ]
+  },
+  "ui/ui_stat_earnings.png": {
+    "box": [
+      510,
+      522,
+      650,
+      598
+    ],
+    "size": [
+      140,
+      76
+    ]
+  },
+  "ui/ui_stat_taps.png": {
+    "box": [
+      650,
+      522,
+      790,
+      598
+    ],
+    "size": [
+      140,
+      76
+    ]
+  },
+  "ui/ui_stat_diamonds.png": {
+    "box": [
+      790,
+      522,
+      927,
+      598
+    ],
+    "size": [
+      137,
+      76
+    ]
+  },
+  "ui/ui_daily_quests_panel.png": {
+    "box": [
+      503,
+      610,
+      927,
+      732
+    ],
+    "size": [
+      424,
+      122
+    ]
+  },
+  "ui/bar_xp_green.png": {
+    "box": [
+      24,
+      785,
+      215,
+      815
+    ],
+    "size": [
+      190,
+      29
+    ]
+  },
+  "ui/bar_diamond_blue.png": {
+    "box": [
+      24,
+      820,
+      215,
+      850
+    ],
+    "size": [
+      189,
+      30
+    ]
+  },
+  "ui/bar_energy_yellow.png": {
+    "box": [
+      24,
+      855,
+      215,
+      885
+    ],
+    "size": [
+      187,
+      23
+    ]
+  },
+  "ui/upgrade_card_click.png": {
+    "box": [
+      248,
+      782,
+      400,
+      885
+    ],
+    "size": [
+      152,
+      103
+    ]
+  },
+  "ui/upgrade_card_earnings.png": {
+    "box": [
+      405,
+      782,
+      560,
+      885
+    ],
+    "size": [
+      155,
+      103
+    ]
+  },
+  "ui/upgrade_card_room_size.png": {
+    "box": [
+      565,
+      782,
+      742,
+      885
+    ],
+    "size": [
+      177,
+      103
+    ]
+  },
+  "ui/room_upgrade_card_level_1.png": {
+    "box": [
+      760,
+      775,
+      890,
+      910
+    ],
+    "size": [
+      130,
+      135
+    ]
+  },
+  "ui/room_upgrade_card_level_2.png": {
+    "box": [
+      890,
+      775,
+      1024,
+      910
+    ],
+    "size": [
+      134,
+      135
+    ]
+  },
+  "ui/room_upgrade_card_level_3.png": {
+    "box": [
+      1024,
+      775,
+      1175,
+      910
+    ],
+    "size": [
+      151,
+      135
+    ]
+  },
+  "ui/empty_state_no_homies.png": {
+    "box": [
+      1182,
+      780,
+      1515,
+      910
+    ],
+    "size": [
+      333,
+      130
+    ]
+  },
+  "buttons/btn_claim.png": {
+    "box": [
+      948,
+      342,
+      1090,
+      394
+    ],
+    "size": [
+      142,
+      49
+    ]
+  },
+  "buttons/btn_upgrade.png": {
+    "box": [
+      948,
+      422,
+      1090,
+      476
+    ],
+    "size": [
+      142,
+      50
+    ]
+  },
+  "buttons/btn_boost.png": {
+    "box": [
+      948,
+      505,
+      1090,
+      560
+    ],
+    "size": [
+      142,
+      55
+    ]
+  },
+  "buttons/btn_shop.png": {
+    "box": [
+      948,
+      584,
+      1090,
+      640
+    ],
+    "size": [
+      142,
+      56
+    ]
+  },
+  "buttons/btn_plus.png": {
+    "box": [
+      948,
+      662,
+      988,
+      703
+    ],
+    "size": [
+      38,
+      33
+    ]
+  },
+  "buttons/btn_minus.png": {
+    "box": [
+      1005,
+      662,
+      1045,
+      703
+    ],
+    "size": [
+      30,
+      31
+    ]
+  },
+  "buttons/btn_close.png": {
+    "box": [
+      1064,
+      662,
+      1105,
+      703
+    ],
+    "size": [
+      27,
+      33
+    ]
+  },
+  "buttons/btn_upgrade_room.png": {
+    "box": [
+      1050,
+      883,
+      1172,
+      908
+    ],
+    "size": [
+      55,
+      9
+    ]
+  },
+  "buttons/btn_mint_homie.png": {
+    "box": [
+      1320,
+      883,
+      1440,
+      908
+    ],
+    "size": [
+      74,
+      18
+    ]
+  },
+  "icons/icon_coin.png": {
+    "box": [
+      1117,
+      346,
+      1161,
+      390
+    ],
+    "size": [
+      28,
+      43
+    ]
+  },
+  "icons/icon_diamond.png": {
+    "box": [
+      1194,
+      342,
+      1244,
+      390
+    ],
+    "size": [
+      37,
+      48
+    ]
+  },
+  "icons/icon_box.png": {
+    "box": [
+      1288,
+      342,
+      1335,
+      390
+    ],
+    "size": [
+      43,
+      46
+    ]
+  },
+  "icons/icon_energy.png": {
+    "box": [
+      1370,
+      344,
+      1415,
+      390
+    ],
+    "size": [
+      37,
+      45
+    ]
+  },
+  "icons/icon_key.png": {
+    "box": [
+      1460,
+      344,
+      1502,
+      390
+    ],
+    "size": [
+      37,
+      37
+    ]
+  },
+  "icons/icon_home.png": {
+    "box": [
+      1118,
+      424,
+      1160,
+      470
+    ],
+    "size": [
+      26,
+      45
+    ]
+  },
+  "icons/icon_shop.png": {
+    "box": [
+      1199,
+      424,
+      1245,
+      470
+    ],
+    "size": [
+      37,
+      45
+    ]
+  },
+  "icons/icon_gift.png": {
+    "box": [
+      1286,
+      424,
+      1335,
+      470
+    ],
+    "size": [
+      45,
+      45
+    ]
+  },
+  "icons/icon_trophy.png": {
+    "box": [
+      1370,
+      424,
+      1420,
+      470
+    ],
+    "size": [
+      47,
+      46
+    ]
+  },
+  "icons/icon_settings.png": {
+    "box": [
+      1460,
+      424,
+      1505,
+      470
+    ],
+    "size": [
+      38,
+      45
+    ]
+  },
+  "icons/icon_backpack.png": {
+    "box": [
+      1118,
+      505,
+      1160,
+      552
+    ],
+    "size": [
+      26,
+      34
+    ]
+  },
+  "icons/icon_star.png": {
+    "box": [
+      1202,
+      505,
+      1245,
+      552
+    ],
+    "size": [
+      34,
+      47
+    ]
+  },
+  "icons/icon_tasks.png": {
+    "box": [
+      1288,
+      505,
+      1335,
+      552
+    ],
+    "size": [
+      36,
+      47
+    ]
+  },
+  "icons/icon_calendar.png": {
+    "box": [
+      1372,
+      505,
+      1418,
+      552
+    ],
+    "size": [
+      41,
+      44
+    ]
+  },
+  "icons/icon_mail.png": {
+    "box": [
+      1457,
+      505,
+      1507,
+      552
+    ],
+    "size": [
+      40,
+      32
+    ]
+  },
+  "icons/icon_stats.png": {
+    "box": [
+      1116,
+      586,
+      1161,
+      633
+    ],
+    "size": [
+      27,
+      35
+    ]
+  },
+  "icons/icon_crown.png": {
+    "box": [
+      1200,
+      586,
+      1248,
+      633
+    ],
+    "size": [
+      42,
+      45
+    ]
+  },
+  "icons/icon_lock.png": {
+    "box": [
+      1288,
+      586,
+      1335,
+      633
+    ],
+    "size": [
+      33,
+      39
+    ]
+  },
+  "icons/icon_users.png": {
+    "box": [
+      1370,
+      586,
+      1422,
+      633
+    ],
+    "size": [
+      44,
+      42
+    ]
+  },
+  "icons/icon_megaphone.png": {
+    "box": [
+      1458,
+      586,
+      1508,
+      633
+    ],
+    "size": [
+      42,
+      42
+    ]
+  },
+  "effects/fx_coin_pop.png": {
+    "box": [
+      20,
+      775,
+      115,
+      890
+    ],
+    "size": [
+      92,
+      94
+    ]
+  },
+  "effects/fx_diamond_pop.png": {
+    "box": [
+      115,
+      775,
+      210,
+      890
+    ],
+    "size": [
+      92,
+      90
+    ]
+  },
+  "effects/fx_tap_ring.png": {
+    "box": [
+      210,
+      775,
+      300,
+      890
+    ],
+    "size": [
+      55,
+      106
+    ]
+  },
+  "branding/hodl_logo_neon.png": {
+    "box": [
+      1110,
+      930,
+      1260,
+      1005
+    ],
+    "size": [
+      150,
+      75
+    ]
+  },
+  "branding/hodl_crown.png": {
+    "box": [
+      1450,
+      930,
+      1525,
+      1005
+    ],
+    "size": [
+      34,
+      44
+    ]
+  }
+}

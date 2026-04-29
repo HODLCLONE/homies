@@ -1,24 +1,20 @@
-# STMBL
+# Homies
 
-STMBL is a Farcaster mini app for quick discovery.
+A browser idle clicker built with Vite, React, TypeScript, Phaser 3, and Tailwind.
 
-Brand:
-- Name: STMBL
-- URL target: https://stmbl.hodlhq.app
-- Style: dark liquid-glass
-
-Current app includes:
-- one-card mobile-first stumble UI
-- real Farcaster cast seed set
-- clickable stumbled results
-- settings page
-- mini app metadata + opengraph image
-
-Run locally:
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Then open http://localhost:3000
+## Build
+
+```bash
+npm run build
+```
+
+## Vercel
+
+Use the included `vercel.json` and add the custom domain `homies.hodlhq.app` in your Vercel project settings.

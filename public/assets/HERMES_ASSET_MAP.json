@@ -1,0 +1,34 @@
+{
+  "DO_NOT_USE": [
+    "reference/source_asset_sheet.png",
+    "any old grouped poster assets",
+    "any placeholder robot or blank-face sprite"
+  ],
+  "PLAYER_CHARACTER": {
+    "key": "homie_player",
+    "path": "character/homie_player_idle.png",
+    "recommendedScale": 0.45,
+    "notes": "Use this as the starting player character. Do not render a robot placeholder."
+  },
+  "ROOM_START": {
+    "key": "room_lvl_1",
+    "path": "rooms/room_lvl_1_starter.png",
+    "recommendedScale": 2.2,
+    "notes": "Render centered. If image still shows border/label artifacts, crop in code using Phaser frame or CSS container clipping."
+  },
+  "SLOTS": {
+    "empty": "slots/slot_empty.png",
+    "available": "slots/slot_available.png",
+    "locked": "slots/slot_locked.png",
+    "occupied": "slots/slot_occupied.png",
+    "positions": "slot_positions.json",
+    "rule": "For level 1 render only first 5 positions. Do not render 20 active circles at level 1."
+  },
+  "UI": {
+    "topbar": "ui/ui_topbar_currencies.png",
+    "player": "ui/ui_player_panel.png",
+    "earnings": "ui/ui_stat_earnings.png",
+    "taps": "ui/ui_stat_taps.png",
+    "diamonds": "ui/ui_stat_diamonds.png"
+  }
+}
