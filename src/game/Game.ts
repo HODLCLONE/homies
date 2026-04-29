@@ -34,6 +34,6 @@ export default function Game(): React.ReactElement {
 
   return React.createElement('div', {
     ref: hostRef,
-    className: 'absolute inset-0',
+    className: 'relative flex-1 min-h-[42svh] w-full overflow-hidden rounded-[28px] border border-white/10 bg-[#08111f] shadow-soft',
   });
 }

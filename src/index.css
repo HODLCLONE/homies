@@ -19,7 +19,8 @@ body,
 }
 
 body {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #08111f;
 }
 
