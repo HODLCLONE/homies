@@ -1,4 +1,9 @@
-import { claimBoost, upgradeClickPower, useGameStore } from '../store/useGameStore';
+import {
+  getRoomUpgradeCost,
+  upgradeAutoClick,
+  upgradeClickPower,
+  useGameStore,
+} from '../store/useGameStore';
 
 const format = (value: number) => new Intl.NumberFormat('en-US').format(value);
 const ROOM_CAPACITY_BY_LEVEL: Record<number, number> = {
@@ -56,7 +61,7 @@ function ActionButton({
         <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.24em] text-white/65">{subtitle}</span>
       </div>
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/20 text-lg font-black text-white">
-        {title === 'Upgrade' ? '↗' : '⚡'}
+        {title === 'Upgrade' ? '↗' : '⚙'}
       </div>
     </button>
   );
@@ -65,10 +70,12 @@ function ActionButton({
 export default function HUD({ section }: { section: HUDSection }) {
   const state = useGameStore((s) => s);
   const upgradeCost = Math.max(25, 25 + (state.clickPower - 1) * 10);
-  const boostGain = Math.max(8, state.clickPower * 4);
+  const autoClickCost = Math.max(60, 60 + state.autoClicksPerMinute * 40);
   const canUpgrade = state.coins >= upgradeCost;
+  const canAutoClick = state.coins >= autoClickCost;
   const capacity = ROOM_CAPACITY_BY_LEVEL[state.roomLevel] ?? ROOM_CAPACITY_BY_LEVEL[3];
   const roomCapacityText = `0 / ${capacity} Homies`;
+  const roomUpgradeCost = getRoomUpgradeCost();
 
   if (section === 'top') {
     return (
@@ -97,12 +104,12 @@ export default function HUD({ section }: { section: HUDSection }) {
           </div>
         </div>
         <p className="mt-3 max-w-xl text-sm leading-6 text-white/82 sm:text-[15px]">
-          Tap the homie to earn coins. Upgrade to hit harder. Everything is tuned for one-hand mobile play.
+          Tap the homie to earn coins. Upgrade to hit harder. Auto-click adds passive taps per minute.
         </p>
         <div className="mt-4 grid grid-cols-2 gap-2">
           <MetaChip label="Click Power" value={`x${state.clickPower}`} />
-          <MetaChip label="Boost" value={`+${boostGain}`} />
-          <MetaChip label="Room Capacity" value={roomCapacityText} />
+          <MetaChip label="Auto-Click" value={`${state.autoClicksPerMinute}/min`} />
+          <MetaChip label="Room Upgrade" value={format(roomUpgradeCost)} />
         </div>
       </div>
 
@@ -114,7 +121,13 @@ export default function HUD({ section }: { section: HUDSection }) {
           onClick={upgradeClickPower}
           disabled={!canUpgrade}
         />
-        <ActionButton title="Boost" subtitle={`Gain +${format(boostGain)} coins`} accent="yellow" onClick={claimBoost} />
+        <ActionButton
+          title="Auto-click"
+          subtitle={`Cost ${format(autoClickCost)} coins • +1/min`}
+          accent="yellow"
+          onClick={upgradeAutoClick}
+          disabled={!canAutoClick}
+        />
       </div>
     </div>
   );

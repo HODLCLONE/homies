@@ -5,17 +5,19 @@ export type GameState = {
   taps: number;
   clickPower: number;
   roomLevel: number;
+  autoClicksPerMinute: number;
   lastTapAmount: number;
 };
 
 type Listener = () => void;
 
-const STORAGE_KEY = 'homies.game.state.v1';
+const STORAGE_KEY = 'homies.game.state.v2';
 const DEFAULT_STATE: GameState = {
   coins: 0,
   taps: 0,
   clickPower: 1,
   roomLevel: 1,
+  autoClicksPerMinute: 0,
   lastTapAmount: 1,
 };
 
@@ -29,11 +31,13 @@ function sanitize(input: Partial<GameState> | null | undefined): GameState {
   if (!input) return { ...DEFAULT_STATE };
   const clickPower = Math.max(1, clampInt(input.clickPower, DEFAULT_STATE.clickPower));
   const roomLevel = Math.max(1, clampInt(input.roomLevel, DEFAULT_STATE.roomLevel));
+  const autoClicksPerMinute = Math.max(0, clampInt(input.autoClicksPerMinute, DEFAULT_STATE.autoClicksPerMinute));
   return {
     coins: clampInt(input.coins, DEFAULT_STATE.coins),
     taps: clampInt(input.taps, DEFAULT_STATE.taps),
     clickPower,
     roomLevel,
+    autoClicksPerMinute,
     lastTapAmount: Math.max(1, clampInt(input.lastTapAmount, clickPower)),
   };
 }
@@ -54,6 +58,7 @@ function loadState(): GameState {
 
 let state: GameState = loadState();
 const listeners: Listener[] = [];
+let autoClickAccumulator = 0;
 
 function persist() {
   if (typeof window === 'undefined') return;
@@ -63,6 +68,27 @@ function persist() {
 function emit() {
   persist();
   listeners.forEach((listener) => listener());
+}
+
+function applyTap(amount: number) {
+  state = sanitize({
+    ...state,
+    coins: state.coins + amount,
+    taps: state.taps + 1,
+    lastTapAmount: amount,
+  });
+}
+
+function getUpgradeClickCost() {
+  return Math.max(25, 25 + (state.clickPower - 1) * 10);
+}
+
+function getAutoClickCost() {
+  return Math.max(60, 60 + state.autoClicksPerMinute * 40);
+}
+
+export function getRoomUpgradeCost(nextRoomLevel = state.roomLevel + 1) {
+  return Math.max(2500, Math.floor(2500 * Math.pow(Math.max(1, nextRoomLevel - 1), 2.1)));
 }
 
 export function getGameState() {
@@ -78,18 +104,13 @@ export function setGameState(patch: Partial<GameState> | ((current: GameState) =
 
 export function tapCharacter() {
   const amount = Math.max(1, state.clickPower);
-  state = sanitize({
-    ...state,
-    coins: state.coins + amount,
-    taps: state.taps + 1,
-    lastTapAmount: amount,
-  });
+  applyTap(amount);
   emit();
   return state;
 }
 
 export function upgradeClickPower() {
-  const cost = Math.max(25, 25 + (state.clickPower - 1) * 10);
+  const cost = getUpgradeClickCost();
   if (state.coins < cost) return false;
 
   state = sanitize({
@@ -102,19 +123,37 @@ export function upgradeClickPower() {
   return true;
 }
 
-export function claimBoost() {
-  const gain = Math.max(8, state.clickPower * 4);
+export function upgradeAutoClick() {
+  const cost = getAutoClickCost();
+  if (state.coins < cost) return false;
+
   state = sanitize({
     ...state,
-    coins: state.coins + gain,
-    lastTapAmount: gain,
+    coins: state.coins - cost,
+    autoClicksPerMinute: state.autoClicksPerMinute + 1,
+    lastTapAmount: state.lastTapAmount,
   });
   emit();
-  return gain;
+  return true;
+}
+
+export function upgradeRoom() {
+  const cost = getRoomUpgradeCost();
+  if (state.coins < cost) return false;
+
+  state = sanitize({
+    ...state,
+    coins: state.coins - cost,
+    roomLevel: state.roomLevel + 1,
+    lastTapAmount: state.lastTapAmount,
+  });
+  emit();
+  return true;
 }
 
 export function resetGame() {
   state = { ...DEFAULT_STATE };
+  autoClickAccumulator = 0;
   emit();
 }
 
@@ -124,6 +163,25 @@ export function subscribe(listener: Listener) {
     const index = listeners.indexOf(listener);
     if (index >= 0) listeners.splice(index, 1);
   };
+}
+
+if (typeof window !== 'undefined') {
+  const globalWindow = window as Window & { __homiesAutoClickTimer?: number };
+  if (!globalWindow.__homiesAutoClickTimer) {
+    globalWindow.__homiesAutoClickTimer = window.setInterval(() => {
+      if (state.autoClicksPerMinute <= 0) return;
+
+      autoClickAccumulator += state.autoClicksPerMinute / 60;
+      let changed = false;
+      while (autoClickAccumulator >= 1) {
+        autoClickAccumulator -= 1;
+        const amount = Math.max(1, state.clickPower);
+        applyTap(amount);
+        changed = true;
+      }
+      if (changed) emit();
+    }, 1000);
+  }
 }
 
 export function useGameStore<T>(selector: (state: GameState) => T) {
