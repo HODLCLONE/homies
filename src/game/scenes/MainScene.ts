@@ -15,6 +15,7 @@ type LayoutState = {
 };
 
 export default class MainScene extends Phaser.Scene {
+  private roomLevel = 1;
   private room!: Phaser.GameObjects.Image;
   private homie!: Phaser.GameObjects.Image;
   private homieHitZone!: Phaser.GameObjects.Rectangle;
@@ -75,15 +76,19 @@ export default class MainScene extends Phaser.Scene {
     this.homieHitZone.setInteractive({ useHandCursor: true });
 
     this.input.on(Phaser.Input.Events.POINTER_DOWN, this.onGlobalPointerDown);
-    this.scale.on(Phaser.Scale.Events.RESIZE, this.layout, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
 
     this.layout();
   }
 
+  updateRoomLevel(roomLevel: number) {
+    if (roomLevel === this.roomLevel) return;
+    this.roomLevel = roomLevel;
+    this.layout();
+  }
+
   private shutdown() {
     this.input.off(Phaser.Input.Events.POINTER_DOWN, this.onGlobalPointerDown);
-    this.scale.off(Phaser.Scale.Events.RESIZE, this.layout, this);
   }
 
   private handleHomieTap(x: number, y: number) {
