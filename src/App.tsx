@@ -161,12 +161,12 @@ export default function App() {
   const closePanel = () => setActivePanel(null);
 
   return (
-    <div className="app bg-ink text-white">
-      <div className="flex h-full min-h-0 flex-col px-3 pt-[max(4px,env(safe-area-inset-top))] pb-[max(92px,env(safe-area-inset-bottom))] sm:px-4 sm:pt-2">
-        <header className="shrink-0">
-          <HUD section="top" />
-        </header>
+    <div className="app relative bg-ink text-white">
+      <header className="fixed left-0 right-0 top-[max(6px,env(safe-area-inset-top))] z-50 px-3 sm:px-4">
+        <HUD section="top" />
+      </header>
 
+      <div className="flex h-full min-h-0 flex-col px-3 pt-[124px] pb-[max(108px,env(safe-area-inset-bottom))] sm:px-4 sm:pt-[130px]">
         <main className="game-area min-h-0">
           <Game />
         </main>
