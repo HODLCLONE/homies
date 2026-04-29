@@ -138,7 +138,7 @@ export default class MainScene extends Phaser.Scene {
 
     const roomNaturalWidth = roomFrame.width;
     const roomNaturalHeight = roomFrame.height;
-    const roomScale = Math.min((width * 0.86) / roomNaturalWidth, (height * 0.72) / roomNaturalHeight);
+    const roomScale = Math.min((width * 0.8) / roomNaturalWidth, (height * 0.68) / roomNaturalHeight);
     const roomDisplayWidth = roomNaturalWidth * roomScale;
     const roomDisplayHeight = roomNaturalHeight * roomScale;
 
