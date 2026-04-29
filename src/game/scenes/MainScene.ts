@@ -40,7 +40,7 @@ export default class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image('room_lvl_1_starter', '/assets/rooms/room_lvl_1_starter.png');
-    this.load.image('homie_player_idle', '/assets/character/homie_player_idle_clean.png');
+    this.load.image('homie_player_idle', '/assets/character/homie_player_idle.png');
   }
 
   create() {
