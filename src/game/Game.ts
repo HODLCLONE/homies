@@ -34,7 +34,10 @@ export default function Game(): React.ReactElement {
     });
 
     gameRef.current = game;
-    sceneRef.current = game.scene.getScene('MainScene') as MainScene;
+    const scene = game.scene.getScene('MainScene') as MainScene;
+    sceneRef.current = scene;
+    scene.updateRoomLevel(roomLevel);
+    roomLevelRef.current = roomLevel;
 
     resizeObserverRef.current = new ResizeObserver((entries) => {
       const entry = entries[0];

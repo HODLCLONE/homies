@@ -28,7 +28,7 @@ const HOMIE_PLACEMENT = {
 
 export default class MainScene extends Phaser.Scene {
   private roomLevel = 1;
-  private room!: Phaser.GameObjects.Image;
+  private room?: Phaser.GameObjects.Image;
   private homie!: Phaser.GameObjects.Image;
   private homieHitZone!: Phaser.GameObjects.Rectangle;
   private homieBaseScale = 1;
@@ -73,7 +73,7 @@ export default class MainScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#08111f');
 
     this.room = this.add.image(0, 0, this.getRoomTextureKey()).setOrigin(0.5);
-    this.room.setDepth(0);
+    this.room?.setDepth(0);
 
     this.homie = this.add.image(0, 0, 'homie_player_idle').setOrigin(0.5, 1);
     this.homie.setDepth(3);
@@ -90,9 +90,11 @@ export default class MainScene extends Phaser.Scene {
   }
 
   updateRoomLevel(roomLevel: number) {
-    if (roomLevel === this.roomLevel) return;
+    if (roomLevel === this.roomLevel && this.room) return;
     this.roomLevel = roomLevel;
-    this.layout();
+    if (this.room) {
+      this.layout();
+    }
   }
 
   private shutdown() {
@@ -153,6 +155,7 @@ export default class MainScene extends Phaser.Scene {
   }
 
   private layout() {
+    if (!this.room) return;
     const width = this.scale.width;
     const height = this.scale.height;
     const roomTextureKey = this.getRoomTextureKey();
