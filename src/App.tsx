@@ -7,15 +7,17 @@ import {
   getClickPower,
   getItemCost,
   getPerSecond,
+  getRoomUpgradeCost,
   resetGame,
   startPassiveIncome,
+  upgradeRoom,
   useGameStore,
 } from './store/store';
 
 const tabs: Array<{ id: ShopTab; icon: string; label: string }> = [
-  { id: 'click', icon: '☝️', label: 'Click' },
+  { id: 'click', icon: '⚡', label: 'Tap' },
   { id: 'auto', icon: '⏱️', label: 'Auto' },
-  { id: 'upgrades', icon: '⬆️', label: 'Upgrades' },
+  { id: 'upgrades', icon: '⬆️', label: 'Boosts' },
   { id: 'nft', icon: '💎', label: 'NFT' },
 ];
 
@@ -38,49 +40,52 @@ export default function App() {
   const clickPower = getClickPower(state);
   const perSecond = getPerSecond(state);
   const visibleItems = useMemo(() => SHOP_ITEMS.filter((item) => item.tab === activeTab), [activeTab]);
+  const nextRoomCost = getRoomUpgradeCost(state.roomLevel + 1);
+  const canUpgradeRoom = state.roomLevel < 3 && state.coins >= nextRoomCost;
 
   useEffect(() => startPassiveIncome(), []);
 
   return (
     <div className={`app-shell ${shopOpen ? 'shop-is-open' : ''}`}>
       <header className="score-header">
-        <button type="button" className="round-icon trophy" aria-label="Achievements">🏆</button>
+        <button type="button" className="round-icon" aria-label="Stats">◎</button>
         <div className="score-copy">
           <h1>Homies</h1>
-          <strong>{formatCompact(state.coins)} cookies</strong>
-          <span>+{formatCompact(clickPower)} per click · {formatCompact(perSecond)}/sec</span>
-          <p>⭐ Prestige Lv.0 (+10.8%) · Next: {formatCompact(Math.max(1000, state.coins * 2))}</p>
+          <strong>{formatCompact(state.coins)} HODL</strong>
+          <span>+{formatCompact(clickPower)} per tap · {formatCompact(perSecond)}/sec</span>
+          <p>Room {state.roomLevel} · {state.taps.toLocaleString()} taps</p>
         </div>
-        <button type="button" className="round-avatar" aria-label="Profile">
+        <button type="button" className="round-avatar" aria-label="OG Homie">
           <img src="/assets/HODL_FINAL_HERMES_ASSETS/character/homie_player_idle.png" alt="OG Homie" />
         </button>
       </header>
 
-      <main className="clicker-stage">
+      <main className="tap-stage">
         <GameCanvas roomLevel={state.roomLevel} onTap={() => undefined} />
       </main>
 
       <nav className="bottom-dock" aria-label="Game actions">
-        <button type="button" className="dock-icon" aria-label="Expand">↗</button>
-        <button type="button" className="dock-star" aria-label="Prestige">⭐</button>
+        <button type="button" className="room-button" onClick={upgradeRoom} disabled={!canUpgradeRoom}>
+          <span>HQ</span>
+          <strong>{state.roomLevel >= 3 ? 'Max room' : `Upgrade ${formatCompact(nextRoomCost)}`}</strong>
+        </button>
         <button type="button" className="shop-button" onClick={() => setShopOpen(true)}>
-          <span>🛒</span>
-          <strong>Shop</strong>
+          <span>＋</span>
+          <strong>Upgrades</strong>
           <em>{SHOP_ITEMS.length}</em>
         </button>
-        <button type="button" className="vault-button" aria-label="Vault">V</button>
       </nav>
 
-      {shopOpen && <button type="button" className="shop-backdrop" aria-label="Close shop" onClick={() => setShopOpen(false)} />}
+      {shopOpen && <button type="button" className="shop-backdrop" aria-label="Close upgrades" onClick={() => setShopOpen(false)} />}
 
       <section className={`shop-sheet ${shopOpen ? 'open' : ''}`} aria-hidden={!shopOpen}>
         <div className="sheet-handle" />
         <div className="shop-title-row">
-          <h2>🛒 Shop</h2>
-          <button type="button" className="sheet-close" onClick={() => setShopOpen(false)} aria-label="Close shop">×</button>
+          <h2>Upgrades</h2>
+          <button type="button" className="sheet-close" onClick={() => setShopOpen(false)} aria-label="Close upgrades">×</button>
         </div>
 
-        <div className="shop-tabs" role="tablist" aria-label="Shop categories">
+        <div className="shop-tabs" role="tablist" aria-label="Upgrade categories">
           {tabs.map((tab) => (
             <button
               key={tab.id}

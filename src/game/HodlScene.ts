@@ -10,7 +10,7 @@ type HodlSceneOptions = {
 
 const ASSET_ROOT = '/assets/HODL_FINAL_HERMES_ASSETS';
 
-const ORBIT_ICONS = ['🤖', '💜', '🔁', '🔵', '📱', '🧠', '⛏️', '🐸', '🏦', '🟣'];
+const ORBIT_ICONS = ['🤖', '💙', '🔁', '🔵', '📱', '🧠', '⛏️', '🐸', '🏦', '💎'];
 
 export class HodlScene extends Phaser.Scene {
   private roomLevel: RoomLevel;
@@ -34,7 +34,7 @@ export class HodlScene extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#070017');
+    this.cameras.main.setBackgroundColor('#02060d');
     this.addGlowBackdrop();
 
     this.homie = this.add.image(0, 0, 'homie-player-idle').setOrigin(0.5).setDepth(8);
@@ -71,9 +71,9 @@ export class HodlScene extends Phaser.Scene {
     const width = Math.max(1, this.scale.width);
     const height = Math.max(1, this.scale.height);
     const rings = [
-      { r: 250, c: 0x5a24ff, a: 0.12, y: 0.42 },
-      { r: 170, c: 0x8a5cff, a: 0.1, y: 0.48 },
-      { r: 90, c: 0x20103f, a: 0.7, y: 0.5 },
+      { r: 250, c: 0x38c8ff, a: 0.10, y: 0.42 },
+      { r: 170, c: 0x0f87b5, a: 0.12, y: 0.48 },
+      { r: 90, c: 0x031421, a: 0.78, y: 0.5 },
     ];
     rings.forEach((ring) => {
       const circle = this.add.circle(width / 2, height * ring.y, ring.r, ring.c, ring.a).setDepth(0);
@@ -135,8 +135,8 @@ export class HodlScene extends Phaser.Scene {
       fontFamily: 'Inter, Arial, sans-serif',
       fontSize: '24px',
       fontStyle: '900',
-      color: '#ffe991',
-      stroke: '#16002f',
+      color: '#7ee7ff',
+      stroke: '#02060d',
       strokeThickness: 6,
     }).setOrigin(0.5).setDepth(32);
 

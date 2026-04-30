@@ -28,29 +28,29 @@ export type GameState = {
 
 type Listener = () => void;
 
-const STORAGE_KEY = 'homies.game.state.v4.cookie';
+const STORAGE_KEY = 'homies.game.state.v5.hodl';
 const LEGACY_STORAGE_KEYS = ['homies.game.state.v3.clean', 'homies.game.state.v2'];
 
 export const SHOP_ITEMS: UpgradeDefinition[] = [
-  { id: 'click-bot', tab: 'click', kind: 'click', name: 'Click Bot', icon: '🤖', description: '+1 /click', baseCost: 75, costMultiplier: 1.38, clickBonus: 1 },
-  { id: 'auto-liker', tab: 'click', kind: 'click', name: 'Auto-Liker', icon: '💜', description: '+5 /click', baseCost: 390, costMultiplier: 1.42, clickBonus: 5 },
-  { id: 'recast-engine', tab: 'click', kind: 'click', name: 'Recast Engine', icon: '🔁', description: '+25 /click', baseCost: 2150, costMultiplier: 1.46, clickBonus: 25 },
-  { id: 'based-node', tab: 'click', kind: 'click', name: 'Based Node', icon: '🔵', description: '+100 /click', baseCost: 15700, costMultiplier: 1.5, clickBonus: 100 },
+  { id: 'click-bot', tab: 'click', kind: 'click', name: 'Tap Bot', icon: '🤖', description: '+1 /tap', baseCost: 75, costMultiplier: 1.38, clickBonus: 1 },
+  { id: 'auto-liker', tab: 'click', kind: 'click', name: 'Signal Liker', icon: '💙', description: '+5 /tap', baseCost: 390, costMultiplier: 1.42, clickBonus: 5 },
+  { id: 'recast-engine', tab: 'click', kind: 'click', name: 'Recast Engine', icon: '🔁', description: '+25 /tap', baseCost: 2150, costMultiplier: 1.46, clickBonus: 25 },
+  { id: 'based-node', tab: 'click', kind: 'click', name: 'Based Node', icon: '🔵', description: '+100 /tap', baseCost: 15700, costMultiplier: 1.5, clickBonus: 100 },
 
-  { id: 'click-farm', tab: 'auto', kind: 'auto', name: 'Click Farm', icon: '📱', description: '+1 /sec', baseCost: 196, costMultiplier: 1.36, autoBonus: 1 },
-  { id: 'ai-clicker', tab: 'auto', kind: 'auto', name: 'AI Clicker', icon: '🧠', description: '+5 /sec', baseCost: 2320, costMultiplier: 1.42, autoBonus: 5 },
+  { id: 'click-farm', tab: 'auto', kind: 'auto', name: 'Tap Relay', icon: '📱', description: '+1 /sec', baseCost: 196, costMultiplier: 1.36, autoBonus: 1 },
+  { id: 'ai-clicker', tab: 'auto', kind: 'auto', name: 'AI Operator', icon: '🧠', description: '+5 /sec', baseCost: 2320, costMultiplier: 1.42, autoBonus: 5 },
   { id: 'crypto-miner', tab: 'auto', kind: 'auto', name: 'Crypto Miner', icon: '⛏️', description: '+25 /sec', baseCost: 7170, costMultiplier: 1.46, autoBonus: 25 },
   { id: 'meme-factory', tab: 'auto', kind: 'auto', name: 'Meme Factory', icon: '🐸', description: '+100 /sec', baseCost: 13700, costMultiplier: 1.5, autoBonus: 100 },
   { id: 'defi-protocol', tab: 'auto', kind: 'auto', name: 'DeFi Protocol', icon: '🏦', description: '+500 /sec', baseCost: 26200, costMultiplier: 1.55, autoBonus: 500 },
-  { id: 'farcaster-hub', tab: 'auto', kind: 'auto', name: 'Farcaster Hub', icon: '🟣', description: '+2.5K /sec', baseCost: 82200, costMultiplier: 1.62, autoBonus: 2500 },
+  { id: 'farcaster-hub', tab: 'auto', kind: 'auto', name: 'Farcaster Hub', icon: '🔷', description: '+2.5K /sec', baseCost: 82200, costMultiplier: 1.62, autoBonus: 2500 },
 
-  { id: 'auto-liker-quantum', tab: 'upgrades', kind: 'boost', name: 'Auto-Liker Quantum', icon: '💜', description: 'Auto-Liker output ×2 (need 50)', baseCost: 10_000_000, costMultiplier: 1, requiredOwned: 50 },
+  { id: 'auto-liker-quantum', tab: 'upgrades', kind: 'boost', name: 'Signal Liker Quantum', icon: '💙', description: 'Signal Liker output ×2 (need 50)', baseCost: 10_000_000, costMultiplier: 1, requiredOwned: 50 },
   { id: 'recast-engine-ultra', tab: 'upgrades', kind: 'boost', name: 'Recast Engine Ultra', icon: '🔁', description: 'Recast Engine output ×2 (need 25)', baseCost: 7_500_000, costMultiplier: 1, requiredOwned: 25 },
   { id: 'based-node-ultra', tab: 'upgrades', kind: 'boost', name: 'Based Node Ultra', icon: '🔵', description: 'Based Node output ×2 (need 25)', baseCost: 125_000_000, costMultiplier: 1, requiredOwned: 25 },
-  { id: 'ai-clicker-quantum', tab: 'upgrades', kind: 'boost', name: 'AI Clicker Quantum', icon: '🧠', description: 'AI Clicker output ×2 (need 50)', baseCost: 50_000_000, costMultiplier: 1, requiredOwned: 50 },
+  { id: 'ai-clicker-quantum', tab: 'upgrades', kind: 'boost', name: 'AI Operator Quantum', icon: '🧠', description: 'AI Operator output ×2 (need 50)', baseCost: 50_000_000, costMultiplier: 1, requiredOwned: 50 },
   { id: 'crypto-miner-ultra', tab: 'upgrades', kind: 'boost', name: 'Crypto Miner Ultra', icon: '⛏️', description: 'Crypto Miner output ×2 (need 25)', baseCost: 25_000_000, costMultiplier: 1, requiredOwned: 25 },
 
-  { id: 'vault-pass', tab: 'nft', kind: 'nft', name: 'Vault Pass', icon: '💎', description: 'Collector flex +10K /click', baseCost: 1_000_000, costMultiplier: 2.25, clickBonus: 10_000 },
+  { id: 'vault-pass', tab: 'nft', kind: 'nft', name: 'Vault Pass', icon: '💎', description: 'Collector flex +10K /tap', baseCost: 1_000_000, costMultiplier: 2.25, clickBonus: 10_000 },
 ];
 
 const DEFAULT_STATE: GameState = {
