@@ -44,7 +44,7 @@ export default class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image('room_lvl_1_starter', '/assets/rooms/room_lvl_1_starter.png');
-    this.load.image('homie_player_idle', '/assets/character/OGHomie.png');
+    this.load.image('homie_player_idle', '/assets/character/homie_player_idle.png');
   }
 
   create() {
@@ -138,20 +138,19 @@ export default class MainScene extends Phaser.Scene {
 
     const roomNaturalWidth = roomFrame.width;
     const roomNaturalHeight = roomFrame.height;
-    const roomScale = Math.min((width * 0.8) / roomNaturalWidth, (height * 0.68) / roomNaturalHeight);
+    const roomScale = Math.min((width * 0.95) / roomNaturalWidth, (height * 0.78) / roomNaturalHeight);
     const roomDisplayWidth = roomNaturalWidth * roomScale;
     const roomDisplayHeight = roomNaturalHeight * roomScale;
 
     const roomX = width / 2;
-    const roomY = height * 0.56;
+    const roomY = height * 0.54;
     const roomLeft = roomX - roomDisplayWidth / 2;
     const roomTop = roomY - roomDisplayHeight / 2;
 
     this.room.setPosition(roomX, roomY);
     this.room.setDisplaySize(roomDisplayWidth, roomDisplayHeight);
 
-    const baseScale = roomDisplayWidth / 700;
-    const homieScale = Math.max(0.34, Math.min(0.56, baseScale * 0.66));
+    const homieScale = 0.45;
     const homieDisplayWidth = homieFrame.width * homieScale;
     const homieDisplayHeight = homieFrame.height * homieScale;
     const homieX = width * 0.385;
