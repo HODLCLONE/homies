@@ -12,6 +12,20 @@ type LayoutState = {
   homieBounds: Phaser.Geom.Rectangle | null;
 };
 
+const ROOM_FIT = {
+  width: 0.78,
+  height: 0.64,
+  centerY: 0.54,
+} as const;
+
+const HOMIE_PLACEMENT = {
+  x: 0.39,
+  floorY: 0.74,
+  widthToScale: 0.66,
+  minScale: 0.34,
+  maxScale: 0.52,
+} as const;
+
 export default class MainScene extends Phaser.Scene {
   private roomLevel = 1;
   private room!: Phaser.GameObjects.Image;
@@ -147,12 +161,12 @@ export default class MainScene extends Phaser.Scene {
 
     const roomNaturalWidth = roomFrame.width;
     const roomNaturalHeight = roomFrame.height;
-    const roomScale = Math.min((width * 0.8) / roomNaturalWidth, (height * 0.68) / roomNaturalHeight);
+    const roomScale = Math.min((width * ROOM_FIT.width) / roomNaturalWidth, (height * ROOM_FIT.height) / roomNaturalHeight);
     const roomDisplayWidth = roomNaturalWidth * roomScale;
     const roomDisplayHeight = roomNaturalHeight * roomScale;
 
     const roomX = width / 2;
-    const roomY = height * 0.56;
+    const roomY = height * ROOM_FIT.centerY;
     const roomLeft = roomX - roomDisplayWidth / 2;
     const roomTop = roomY - roomDisplayHeight / 2;
 
@@ -161,11 +175,11 @@ export default class MainScene extends Phaser.Scene {
     this.room.setDisplaySize(roomDisplayWidth, roomDisplayHeight);
 
     const baseScale = roomDisplayWidth / 700;
-    const homieScale = Math.max(0.34, Math.min(0.56, baseScale * 0.66));
+    const homieScale = Math.max(HOMIE_PLACEMENT.minScale, Math.min(HOMIE_PLACEMENT.maxScale, baseScale * HOMIE_PLACEMENT.widthToScale));
     const homieDisplayWidth = homieFrame.width * homieScale;
     const homieDisplayHeight = homieFrame.height * homieScale;
-    const homieX = width * 0.385;
-    const homieBottomY = height * 0.755;
+    const homieX = width * HOMIE_PLACEMENT.x;
+    const homieBottomY = Math.min(height * HOMIE_PLACEMENT.floorY, roomTop + roomDisplayHeight * 0.93);
 
     this.homieBaseScale = homieScale;
     this.homie.setScale(homieScale);

@@ -79,6 +79,7 @@ function DrawerContent({ panel, onClose }: { panel: Panel; onClose: () => void }
   const upgradeCost = Math.max(25, 25 + (state.clickPower - 1) * 10);
   const autoClickCost = Math.max(60, 60 + state.autoClicksPerMinute * 40);
   const roomUpgradeCost = getRoomUpgradeCost();
+  const hasMaxRoom = state.roomLevel >= 3;
 
   return (
     <>
@@ -132,10 +133,10 @@ function DrawerContent({ panel, onClose }: { panel: Panel; onClose: () => void }
           <p className="text-sm leading-6 text-white/72">Room upgrades go from Lv 1 to Lv 3. The first jumps are intentionally pricey.</p>
           <DrawerAction
             title="Room Up"
-            subtitle={state.roomLevel >= 3 ? 'Max level reached' : `Lv ${state.roomLevel + 1} • Cost ${format(roomUpgradeCost)} coins`}
+            subtitle={hasMaxRoom ? 'Max level reached' : `Lv ${state.roomLevel + 1} • Cost ${format(roomUpgradeCost)} coins`}
             accent="lime"
             onClick={upgradeRoom}
-            disabled={state.roomLevel >= 3 || state.coins < roomUpgradeCost}
+            disabled={hasMaxRoom || state.coins < roomUpgradeCost}
           />
           <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 text-sm text-white/72">
             Current room: <span className="font-bold text-white">Lv {state.roomLevel} / 3</span>
@@ -166,13 +167,13 @@ export default function App() {
         <HUD section="top" />
       </header>
 
-      <div className="flex h-full min-h-0 flex-col px-3 pt-[124px] pb-[max(108px,env(safe-area-inset-bottom))] sm:px-4 sm:pt-[130px]">
+      <div className="flex h-full min-h-0 flex-col px-3 pt-[124px] pb-[max(104px,env(safe-area-inset-bottom))] sm:px-4 sm:pt-[130px]">
         <main className="game-area min-h-0">
           <Game />
         </main>
       </div>
 
-      <nav className="fixed bottom-[max(10px,env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-1rem)] max-w-xl -translate-x-1/2">
+      <nav className="fixed bottom-[max(8px,env(safe-area-inset-bottom))] left-1/2 z-40 w-[calc(100%-1rem)] max-w-xl -translate-x-1/2">
         <div className="rounded-[26px] border border-white/10 bg-[#0b141dd9] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.42)] backdrop-blur-xl">
           <div className="grid actions grid-cols-4 gap-2">
             <NavButton active={activePanel === 'upgrade'} label="Upgrade" onClick={() => openPanel('upgrade')} />
