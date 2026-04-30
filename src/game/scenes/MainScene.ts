@@ -42,15 +42,23 @@ export default class MainScene extends Phaser.Scene {
     this.layout();
   };
 
+  private getRoomTextureKey() {
+    if (this.roomLevel >= 3) return 'room_lvl_3_hq';
+    if (this.roomLevel === 2) return 'room_lvl_2_expanded';
+    return 'room_lvl_1_starter';
+  }
+
   preload() {
     this.load.image('room_lvl_1_starter', '/assets/rooms/room_lvl_1_starter.png');
+    this.load.image('room_lvl_2_expanded', '/assets/rooms/room_lvl_2_expanded.png');
+    this.load.image('room_lvl_3_hq', '/assets/rooms/room_lvl_3_hq.png');
     this.load.image('homie_player_idle', '/assets/character/OGHomie.png');
   }
 
   create() {
     this.cameras.main.setBackgroundColor('#08111f');
 
-    this.room = this.add.image(0, 0, 'room_lvl_1_starter').setOrigin(0.5);
+    this.room = this.add.image(0, 0, this.getRoomTextureKey()).setOrigin(0.5);
     this.room.setDepth(0);
 
     this.homie = this.add.image(0, 0, 'homie_player_idle').setOrigin(0.5, 1);
@@ -133,7 +141,8 @@ export default class MainScene extends Phaser.Scene {
   private layout() {
     const width = this.scale.width;
     const height = this.scale.height;
-    const roomFrame = this.textures.getFrame('room_lvl_1_starter');
+    const roomTextureKey = this.getRoomTextureKey();
+    const roomFrame = this.textures.getFrame(roomTextureKey);
     const homieFrame = this.textures.getFrame('homie_player_idle');
 
     const roomNaturalWidth = roomFrame.width;
@@ -147,6 +156,7 @@ export default class MainScene extends Phaser.Scene {
     const roomLeft = roomX - roomDisplayWidth / 2;
     const roomTop = roomY - roomDisplayHeight / 2;
 
+    this.room.setTexture(roomTextureKey);
     this.room.setPosition(roomX, roomY);
     this.room.setDisplaySize(roomDisplayWidth, roomDisplayHeight);
 
