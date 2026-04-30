@@ -65,7 +65,7 @@ export class HodlScene extends Phaser.Scene {
     const width = Math.max(1, this.scale.width);
     const height = Math.max(1, this.scale.height);
     const roomFrame = this.textures.getFrame('room-lvl-3-hq');
-    const roomScale = Math.max(width / roomFrame.width, height / roomFrame.height) * 1.14;
+    const roomScale = Math.max(width / roomFrame.width, height / roomFrame.height) * 1.16;
     const frame = this.textures.getFrame('homie-player-idle');
     const target = Math.min(width * 0.62, height * 0.42);
     const scale = Phaser.Math.Clamp(target / Math.max(frame.width, frame.height), 0.54, 1);
@@ -73,7 +73,7 @@ export class HodlScene extends Phaser.Scene {
     const centerY = height * 0.5;
 
     this.roomBackground.setScale(roomScale);
-    this.roomBackground.setPosition(centerX, height * 0.52);
+    this.roomBackground.setPosition(centerX + width * 0.18, height * 0.39);
     this.homieBaseScale = scale;
     this.homie.setScale(scale);
     this.homie.setPosition(centerX, centerY);
