@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { getGameState, tapHomie } from '../store/store';
+import { tapHomie } from '../store/store';
 
 type RoomLevel = 1 | 2 | 3;
 
@@ -10,16 +10,13 @@ type HodlSceneOptions = {
 
 const ASSET_ROOT = '/assets/HODL_FINAL_HERMES_ASSETS';
 
-const ORBIT_ICONS = ['🤖', '💙', '🔁', '🔵', '📱', '🧠', '⛏️', '🐸', '🏦', '💎'];
-
 export class HodlScene extends Phaser.Scene {
   private roomLevel: RoomLevel;
   private onTap: () => void;
+  private roomBackground?: Phaser.GameObjects.Image;
   private homie?: Phaser.GameObjects.Image;
   private homieHitZone?: Phaser.GameObjects.Zone;
-  private orbiters: Phaser.GameObjects.Text[] = [];
   private homieBaseScale = 1;
-  private orbitTick = 0;
 
   constructor(options: HodlSceneOptions) {
     super('HodlScene');
@@ -28,6 +25,7 @@ export class HodlScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('room-lvl-3-hq', `${ASSET_ROOT}/rooms/room_lvl_3_hq.png`);
     this.load.image('homie-player-idle', `${ASSET_ROOT}/character/homie_player_idle.png`);
     this.load.image('fx-tap-ring', `${ASSET_ROOT}/effects/fx_tap_ring.png`);
     this.load.image('fx-coin-pop', `${ASSET_ROOT}/effects/fx_coin_pop.png`);
@@ -36,17 +34,10 @@ export class HodlScene extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor('#02060d');
 
+    this.roomBackground = this.add.image(0, 0, 'room-lvl-3-hq').setOrigin(0.5).setDepth(1);
     this.homie = this.add.image(0, 0, 'homie-player-idle').setOrigin(0.5).setDepth(8);
     this.homieHitZone = this.add.zone(0, 0, 1, 1).setOrigin(0.5).setDepth(20).setInteractive({ useHandCursor: true });
     this.homieHitZone.on(Phaser.Input.Events.POINTER_DOWN, this.handleHomieTap, this);
-
-    ORBIT_ICONS.forEach((icon, index) => {
-      const orbiter = this.add.text(0, 0, icon, {
-        fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif',
-        fontSize: '30px',
-      }).setOrigin(0.5).setDepth(5).setAlpha(index < 5 ? 0.95 : 0.7);
-      this.orbiters.push(orbiter);
-    });
 
     this.scale.on(Phaser.Scale.Events.RESIZE, this.layout, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -54,11 +45,6 @@ export class HodlScene extends Phaser.Scene {
     });
 
     this.layout();
-  }
-
-  update(_time: number, delta: number) {
-    this.orbitTick += delta * 0.00042;
-    this.layoutOrbiters();
   }
 
   setRoomLevel(roomLevel: RoomLevel) {
@@ -74,43 +60,25 @@ export class HodlScene extends Phaser.Scene {
   }
 
   private layout() {
-    if (!this.homie || !this.homieHitZone) return;
+    if (!this.roomBackground || !this.homie || !this.homieHitZone) return;
 
     const width = Math.max(1, this.scale.width);
     const height = Math.max(1, this.scale.height);
+    const roomFrame = this.textures.getFrame('room-lvl-3-hq');
+    const roomScale = Math.max(width / roomFrame.width, height / roomFrame.height) * 1.14;
     const frame = this.textures.getFrame('homie-player-idle');
     const target = Math.min(width * 0.62, height * 0.42);
     const scale = Phaser.Math.Clamp(target / Math.max(frame.width, frame.height), 0.54, 1);
     const centerX = width / 2;
     const centerY = height * 0.5;
 
+    this.roomBackground.setScale(roomScale);
+    this.roomBackground.setPosition(centerX, height * 0.52);
     this.homieBaseScale = scale;
     this.homie.setScale(scale);
     this.homie.setPosition(centerX, centerY);
     this.homieHitZone.setPosition(centerX, centerY);
     this.homieHitZone.setSize(frame.width * scale * 0.9, frame.height * scale * 0.9);
-    this.layoutOrbiters();
-  }
-
-  private layoutOrbiters() {
-    if (!this.homie) return;
-    const width = Math.max(1, this.scale.width);
-    const height = Math.max(1, this.scale.height);
-    const centerX = width / 2;
-    const centerY = height * 0.5;
-    const ownedTotal = Object.values(getGameState().owned).reduce((sum, count) => sum + count, 0);
-    const visible = Phaser.Math.Clamp(Math.max(5, Math.ceil(ownedTotal / 4)), 5, this.orbiters.length);
-
-    this.orbiters.forEach((orbiter, index) => {
-      const radius = Math.min(width * (0.27 + (index % 3) * 0.055), height * (0.22 + (index % 3) * 0.035));
-      const angle = this.orbitTick + index * ((Math.PI * 2) / this.orbiters.length);
-      const x = centerX + Math.cos(angle) * radius;
-      const y = centerY + Math.sin(angle) * radius * 0.8;
-      orbiter.setVisible(index < visible);
-      orbiter.setPosition(x, y);
-      orbiter.setScale(0.82 + Math.sin(angle * 2) * 0.08);
-      orbiter.setAlpha(index < visible ? 0.95 : 0);
-    });
   }
 
   private spawnTapEffects(x: number, y: number, amount: number) {
