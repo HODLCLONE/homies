@@ -129,16 +129,16 @@ function DrawerContent({ panel, onClose }: { panel: Panel; onClose: () => void }
 
       {panel === 'room' && (
         <div className="space-y-3">
-          <p className="text-sm leading-6 text-white/72">Room upgrades unlock more space later. The first jumps are intentionally pricey.</p>
+          <p className="text-sm leading-6 text-white/72">Room upgrades go from Lv 1 to Lv 3. The first jumps are intentionally pricey.</p>
           <DrawerAction
             title="Room Up"
-            subtitle={`Lv ${state.roomLevel + 1} • Cost ${format(roomUpgradeCost)} coins`}
+            subtitle={state.roomLevel >= 3 ? 'Max level reached' : `Lv ${state.roomLevel + 1} • Cost ${format(roomUpgradeCost)} coins`}
             accent="lime"
             onClick={upgradeRoom}
-            disabled={state.coins < roomUpgradeCost}
+            disabled={state.roomLevel >= 3 || state.coins < roomUpgradeCost}
           />
           <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 text-sm text-white/72">
-            Current room: <span className="font-bold text-white">Lv {state.roomLevel}</span>
+            Current room: <span className="font-bold text-white">Lv {state.roomLevel} / 3</span>
           </div>
         </div>
       )}

@@ -43,15 +43,15 @@ export default class MainScene extends Phaser.Scene {
   };
 
   private getRoomTextureKey() {
-    if (this.roomLevel >= 3) return 'room_lvl_3_hq';
-    if (this.roomLevel === 2) return 'room_lvl_2_expanded';
-    return 'room_lvl_1_starter';
+    if (this.roomLevel >= 3) return 'room_lvl_3';
+    if (this.roomLevel === 2) return 'room_lvl_2';
+    return 'room_lvl_1';
   }
 
   preload() {
-    this.load.image('room_lvl_1_starter', '/assets/rooms/room_lvl_1_starter.png');
-    this.load.image('room_lvl_2_expanded', '/assets/rooms/room_lvl_2_expanded.png');
-    this.load.image('room_lvl_3_hq', '/assets/rooms/room_lvl_3_hq.png');
+    this.load.image('room_lvl_1', '/assets/rooms/room_lvl_1_starter.png');
+    this.load.image('room_lvl_2', '/assets/rooms/room_lvl_2_expanded.png');
+    this.load.image('room_lvl_3', '/assets/rooms/room_lvl_3_hq.png');
     this.load.image('homie_player_idle', '/assets/character/OGHomie.png');
   }
 

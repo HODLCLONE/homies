@@ -88,6 +88,7 @@ function getAutoClickCost() {
 }
 
 export function getRoomUpgradeCost(nextRoomLevel = state.roomLevel + 1) {
+  if (nextRoomLevel > 3) return Number.POSITIVE_INFINITY;
   const levelIndex = Math.max(1, nextRoomLevel - 1);
   return Math.max(12500, Math.floor(12500 * Math.pow(levelIndex, 2.1)));
 }
@@ -139,13 +140,14 @@ export function upgradeAutoClick() {
 }
 
 export function upgradeRoom() {
+  if (state.roomLevel >= 3) return false;
   const cost = getRoomUpgradeCost();
   if (state.coins < cost) return false;
 
   state = sanitize({
     ...state,
     coins: state.coins - cost,
-    roomLevel: state.roomLevel + 1,
+    roomLevel: Math.min(3, state.roomLevel + 1),
     lastTapAmount: state.lastTapAmount,
   });
   emit();
