@@ -35,7 +35,6 @@ export class HodlScene extends Phaser.Scene {
 
   create() {
     this.cameras.main.setBackgroundColor('#02060d');
-    this.addGlowBackdrop();
 
     this.homie = this.add.image(0, 0, 'homie-player-idle').setOrigin(0.5).setDepth(8);
     this.homieHitZone = this.add.zone(0, 0, 1, 1).setOrigin(0.5).setDepth(20).setInteractive({ useHandCursor: true });
@@ -67,20 +66,6 @@ export class HodlScene extends Phaser.Scene {
     this.layout();
   }
 
-  private addGlowBackdrop() {
-    const width = Math.max(1, this.scale.width);
-    const height = Math.max(1, this.scale.height);
-    const rings = [
-      { r: 250, c: 0x38c8ff, a: 0.10, y: 0.42 },
-      { r: 170, c: 0x0f87b5, a: 0.12, y: 0.48 },
-      { r: 90, c: 0x031421, a: 0.78, y: 0.5 },
-    ];
-    rings.forEach((ring) => {
-      const circle = this.add.circle(width / 2, height * ring.y, ring.r, ring.c, ring.a).setDepth(0);
-      circle.setBlendMode(Phaser.BlendModes.ADD);
-    });
-  }
-
   private handleHomieTap(pointer: Phaser.Input.Pointer) {
     const state = tapHomie();
     this.onTap();
@@ -94,8 +79,8 @@ export class HodlScene extends Phaser.Scene {
     const width = Math.max(1, this.scale.width);
     const height = Math.max(1, this.scale.height);
     const frame = this.textures.getFrame('homie-player-idle');
-    const target = Math.min(width * 0.46, height * 0.31);
-    const scale = Phaser.Math.Clamp(target / Math.max(frame.width, frame.height), 0.42, 0.82);
+    const target = Math.min(width * 0.62, height * 0.42);
+    const scale = Phaser.Math.Clamp(target / Math.max(frame.width, frame.height), 0.54, 1);
     const centerX = width / 2;
     const centerY = height * 0.5;
 

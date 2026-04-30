@@ -7,10 +7,8 @@ import {
   getClickPower,
   getItemCost,
   getPerSecond,
-  getRoomUpgradeCost,
   resetGame,
   startPassiveIncome,
-  upgradeRoom,
   useGameStore,
 } from './store/store';
 
@@ -40,8 +38,6 @@ export default function App() {
   const clickPower = getClickPower(state);
   const perSecond = getPerSecond(state);
   const visibleItems = useMemo(() => SHOP_ITEMS.filter((item) => item.tab === activeTab), [activeTab]);
-  const nextRoomCost = getRoomUpgradeCost(state.roomLevel + 1);
-  const canUpgradeRoom = state.roomLevel < 3 && state.coins >= nextRoomCost;
 
   useEffect(() => startPassiveIncome(), []);
 
@@ -51,9 +47,9 @@ export default function App() {
         <button type="button" className="round-icon" aria-label="Stats">◎</button>
         <div className="score-copy">
           <h1>Homies</h1>
-          <strong>{formatCompact(state.coins)} HODL</strong>
+          <strong>{formatCompact(state.coins)} GEMS 💎</strong>
           <span>+{formatCompact(clickPower)} per tap · {formatCompact(perSecond)}/sec</span>
-          <p>Room {state.roomLevel} · {state.taps.toLocaleString()} taps</p>
+          <p>{state.taps.toLocaleString()} taps</p>
         </div>
         <button type="button" className="round-avatar" aria-label="OG Homie">
           <img src="/assets/HODL_FINAL_HERMES_ASSETS/character/homie_player_idle.png" alt="OG Homie" />
@@ -65,10 +61,6 @@ export default function App() {
       </main>
 
       <nav className="bottom-dock" aria-label="Game actions">
-        <button type="button" className="room-button" onClick={upgradeRoom} disabled={!canUpgradeRoom}>
-          <span>HQ</span>
-          <strong>{state.roomLevel >= 3 ? 'Max room' : `Upgrade ${formatCompact(nextRoomCost)}`}</strong>
-        </button>
         <button type="button" className="shop-button" onClick={() => setShopOpen(true)}>
           <span>＋</span>
           <strong>Upgrades</strong>
@@ -113,7 +105,7 @@ export default function App() {
                   <strong>{item.name} <em>×{owned}</em></strong>
                   <small>{item.description}</small>
                 </span>
-                <span className="item-cost">{formatCompact(cost)}</span>
+                <span className="item-cost">{formatCompact(cost)} 💎</span>
               </button>
             );
           })}
